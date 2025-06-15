@@ -20,6 +20,7 @@
             background: #333;
             position: fixed;
             touch-action: none;
+            font-family: Arial, sans-serif;
         }
         #game-container {
             width: 100%;
@@ -36,13 +37,13 @@
             z-index: 1000;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        #start-screen {
+        #home-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -52,14 +53,78 @@
             text-align: center;
             z-index: 2000;
             padding: 20px;
+            overflow-y: auto;
         }
-        #start-screen h1 {
+        #home-screen h1 {
             font-size: 36px;
             margin-bottom: 20px;
+            color: #4CAF50;
         }
-        #start-screen p {
+        #home-screen h2 {
+            font-size: 28px;
+            margin: 15px 0;
+            color: #2196F3;
+        }
+        #home-screen p {
             margin: 10px 0;
             font-size: 20px;
+        }
+        .section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            width: 90%;
+            max-width: 600px;
+        }
+        .unlockable {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+        .unlockable.locked {
+            opacity: 0.5;
+        }
+        .unlockable button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .unlockable button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .points-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .point-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #start-button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        #start-button:hover {
+            transform: scale(1.05);
         }
         #controls {
             position: absolute;
@@ -90,11 +155,53 @@
 <body>
     <div id="game-container">
         <div id="score">Score: 0</div>
-        <div id="start-screen">
+        <div id="home-screen">
             <h1>Otter River Adventure</h1>
-            <p>Use the controls at the bottom to move the otter</p>
-            <p>Avoid the red obstacles</p>
-            <p>Tap to start!</p>
+            <p>A fun 3D game where you control an otter collecting fish and avoiding obstacles in a river!</p>
+            
+            <div class="section">
+                <h2>How to Play</h2>
+                <p>Arrow Keys to move</p>
+                <p>🎯 Collect fish and clams while avoiding obstacles</p>
+                <p>⚡ Game speeds up as you level up</p>
+                <p>✨ Rarer fish appear at higher levels</p>
+            </div>
+
+            <div class="section">
+                <h2>Point Distribution</h2>
+                <div class="points-grid">
+                    <div class="point-item">🐟 Normal Fish: 1 point</div>
+                    <div class="point-item">🌈 Rainbow Fish: 3 points</div>
+                    <div class="point-item">🌟 Golden Fish: 5 points</div>
+                    <div class="point-item">💎 Emerald Fish: 7 points</div>
+                    <div class="point-item">💠 Diamond Fish: 10 points</div>
+                    <div class="point-item">🦪 Clam: 15 points</div>
+                    <div class="point-item">🐠 Seahorse: 8 points</div>
+                    <div class="point-item">🐙 Jellyfish: 12 points</div>
+                    <div class="point-item">⭐ Starfish: 6 points</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Top Scores</h2>
+                <div id="top-scores"></div>
+            </div>
+
+            <div class="section">
+                <h2>Unlockables</h2>
+                <div class="unlockable">
+                    <span>🎩 Top Hat</span>
+                    <span>Unlocked!</span>
+                    <button onclick="wearHat()">Wear Top Hat</button>
+                </div>
+                <div class="unlockable locked">
+                    <span>👑 Crown</span>
+                    <span>Locked (Score 300+ in a game)</span>
+                    <button disabled>Wear Crown</button>
+                </div>
+            </div>
+
+            <button id="start-button">Start Adventure!</button>
         </div>
         <div id="controls">
             <div id="left-control">←</div>
@@ -116,13 +223,20 @@
                 this.renderer = new THREE.WebGLRenderer({ antialias: true });
                 this.clock = new THREE.Clock();
                 this.obstacles = [];
+                this.collectibles = [];
                 this.score = 0;
+                this.level = 1;
                 this.gameOver = false;
                 this.otter = null;
                 this.river = null;
                 this.isPlaying = false;
                 this.moveDirection = 0;
                 this.moveSpeed = 0.2;
+                this.obstacleSpeed = 0.2;
+                this.spawnRate = 0.02;
+                this.collectibleSpawnRate = 0.01;
+                this.topScores = JSON.parse(localStorage.getItem('topScores')) || [];
+                this.unlockedItems = JSON.parse(localStorage.getItem('unlockedItems')) || ['topHat'];
                 
                 this.init();
             }
@@ -179,372 +293,144 @@
                 this.setupControls();
                 window.addEventListener('resize', this.onWindowResize.bind(this));
 
+                // Update top scores display
+                this.updateTopScores();
+
                 // Start game loop
                 this.animate();
             }
 
-            createEnvironment() {
-                // Add skybox
-                const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
-                const skyboxMaterials = [
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // right
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // left
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // top
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // bottom
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // front
-                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide })  // back
-                ];
-                const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
-                this.scene.add(skybox);
-
-                // Add clouds
-                this.clouds = [];
-                for (let i = 0; i < 10; i++) {
-                    const cloud = this.createCloud();
-                    cloud.position.set(
-                        (Math.random() - 0.5) * 100,
-                        Math.random() * 20 + 10,
-                        -Math.random() * 100 - 20
-                    );
-                    cloud.userData.speed = Math.random() * 0.05 + 0.02;
-                    this.clouds.push(cloud);
-                    this.scene.add(cloud);
-                }
-
-                // Add ground with repeating texture
-                const groundGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
-                const groundMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x7CFC00,
-                    roughness: 0.8,
-                    metalness: 0.2,
-                    side: THREE.DoubleSide
-                });
-                this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
-                this.ground.rotation.x = -Math.PI / 2;
-                this.ground.position.y = 0;
-                this.ground.receiveShadow = true;
-                this.scene.add(this.ground);
+            updateTopScores() {
+                const topScoresDiv = document.getElementById('top-scores');
+                topScoresDiv.innerHTML = this.topScores
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 5)
+                    .map((score, index) => `${index + 1}. ${score.score} points`)
+                    .join('<br>');
             }
 
-            createCloud() {
-                const cloud = new THREE.Group();
-                const numBlobs = 3 + Math.floor(Math.random() * 3);
-                
-                for (let i = 0; i < numBlobs; i++) {
-                    const blobGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 8, 8);
-                    const blobMaterial = new THREE.MeshStandardMaterial({
-                        color: 0xffffff,
-                        roughness: 0.8,
-                        metalness: 0.1,
-                        transparent: true,
-                        opacity: 0.8
+            wearHat() {
+                if (this.unlockedItems.includes('topHat')) {
+                    // Add hat to otter model
+                    const hatGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.2, 8);
+                    const hatMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x000000,
+                        roughness: 0.7,
+                        metalness: 0.2
                     });
-                    const blob = new THREE.Mesh(blobGeometry, blobMaterial);
-                    blob.position.set(
-                        (Math.random() - 0.5) * 3,
-                        (Math.random() - 0.5) * 2,
-                        (Math.random() - 0.5) * 3
-                    );
-                    cloud.add(blob);
+                    const hat = new THREE.Mesh(hatGeometry, hatMaterial);
+                    hat.position.set(0, 0.8, 0);
+                    this.otter.add(hat);
                 }
-                
-                return cloud;
             }
 
-            createRiver() {
-                // Create river with repeating pattern
-                const riverGeometry = new THREE.PlaneGeometry(20, 60, 32, 32);
-                const riverMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x0077be,
-                    metalness: 0.1,
-                    roughness: 0.2,
-                    transparent: true,
-                    opacity: 0.8,
-                    side: THREE.DoubleSide
-                });
-                this.river = new THREE.Mesh(riverGeometry, riverMaterial);
-                this.river.rotation.x = -Math.PI / 2;
-                this.river.position.z = -15;
-                this.river.position.y = 0.01;
-                this.river.receiveShadow = true;
-                this.scene.add(this.river);
-
-                // Add water with repeating pattern
-                const waterGeometry = new THREE.PlaneGeometry(20, 60, 32, 32);
-                const waterMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x0077be,
-                    metalness: 0.3,
-                    roughness: 0.1,
-                    transparent: true,
-                    opacity: 0.6,
-                    side: THREE.DoubleSide
-                });
-                this.water = new THREE.Mesh(waterGeometry, waterMaterial);
-                this.water.rotation.x = -Math.PI / 2;
-                this.water.position.z = -15;
-                this.water.position.y = 0.02;
-                this.water.receiveShadow = true;
-                this.scene.add(this.water);
+            wearCrown() {
+                if (this.unlockedItems.includes('crown')) {
+                    // Add crown to otter model
+                    const crownGeometry = new THREE.ConeGeometry(0.3, 0.4, 8);
+                    const crownMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xFFD700,
+                        roughness: 0.3,
+                        metalness: 0.8
+                    });
+                    const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+                    crown.position.set(0, 0.8, 0);
+                    this.otter.add(crown);
+                }
             }
 
-            setupControls() {
-                const leftControl = document.getElementById('left-control');
-                const rightControl = document.getElementById('right-control');
+            spawnCollectible() {
+                const types = [
+                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.4 },
+                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.2 },
+                    { type: 'goldenFish', points: 5, color: 0xFFD700, chance: 0.15 },
+                    { type: 'emeraldFish', points: 7, color: 0x00FF00, chance: 0.1 },
+                    { type: 'diamondFish', points: 10, color: 0x00FFFF, chance: 0.05 },
+                    { type: 'clam', points: 15, color: 0xFFFFFF, chance: 0.05 },
+                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.02 },
+                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.02 },
+                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.01 }
+                ];
 
-                // Touch events for left control
-                leftControl.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.moveDirection = -1;
-                });
-                leftControl.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    if (this.moveDirection === -1) this.moveDirection = 0;
-                });
+                // Adjust chances based on level
+                const totalChance = types.reduce((sum, type) => sum + type.chance, 0);
+                const random = Math.random() * totalChance;
+                let currentSum = 0;
+                let selectedType;
 
-                // Touch events for right control
-                rightControl.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.moveDirection = 1;
-                });
-                rightControl.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    if (this.moveDirection === 1) this.moveDirection = 0;
-                });
-
-                // Start game on any touch
-                this.container.addEventListener('touchstart', (e) => {
-                    if (!this.isPlaying) {
-                        e.preventDefault();
-                        this.startGame();
+                for (const type of types) {
+                    currentSum += type.chance;
+                    if (random <= currentSum) {
+                        selectedType = type;
+                        break;
                     }
-                });
-            }
-
-            onWindowResize() {
-                this.camera.aspect = window.innerWidth / window.innerHeight;
-                this.camera.updateProjectionMatrix();
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            loadOtter() {
-                // Create otter group to hold all parts
-                this.otter = new THREE.Group();
-                this.otter.position.y = 0.5;
-                this.otter.rotation.y = 0;
-
-                // Create otter body (main torso)
-                const bodyGeometry = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
-                const bodyMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.rotation.x = Math.PI / 2;
-                body.position.z = 0.2;
-                body.castShadow = true;
-                this.otter.add(body);
-
-                // Create otter head
-                const headGeometry = new THREE.SphereGeometry(0.35, 16, 16);
-                const headMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.2, -1.1);
-                head.castShadow = true;
-                this.otter.add(head);
-
-                // Create otter snout
-                const snoutGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
-                const snoutMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.rotation.x = Math.PI / 2;
-                snout.position.set(0, 0.1, -1.4);
-                snout.castShadow = true;
-                this.otter.add(snout);
-
-                // Create otter eyes
-                const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-                const eyeMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x000000,
-                    roughness: 0.3,
-                    metalness: 0.8
-                });
-                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(-0.15, 0.3, -1.2);
-                this.otter.add(leftEye);
-                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(0.15, 0.3, -1.2);
-                this.otter.add(rightEye);
-
-                // Create otter ears
-                const earGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-                const earMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(-0.2, 0.5, -1.0);
-                leftEar.castShadow = true;
-                this.otter.add(leftEar);
-                const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(0.2, 0.5, -1.0);
-                rightEar.castShadow = true;
-                this.otter.add(rightEar);
-
-                // Create otter tail
-                const tailGeometry = new THREE.CapsuleGeometry(0.25, 1.2, 8, 16);
-                const tailMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.rotation.x = Math.PI / 2;
-                tail.position.set(0, 0.1, 1.0);
-                tail.castShadow = true;
-                this.otter.add(tail);
-
-                // Create otter legs
-                const legGeometry = new THREE.CapsuleGeometry(0.15, 0.4, 8, 8);
-                const legMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-
-                // Front legs
-                const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(-0.3, -0.2, -0.6);
-                frontLeftLeg.castShadow = true;
-                this.otter.add(frontLeftLeg);
-
-                const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(0.3, -0.2, -0.6);
-                frontRightLeg.castShadow = true;
-                this.otter.add(frontRightLeg);
-
-                // Back legs
-                const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(-0.3, -0.2, 0.6);
-                backLeftLeg.castShadow = true;
-                this.otter.add(backLeftLeg);
-
-                const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(0.3, -0.2, 0.6);
-                backRightLeg.castShadow = true;
-                this.otter.add(backRightLeg);
-
-                // Add whiskers
-                const whiskerGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.3);
-                const whiskerMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xFFFFFF,
-                    roughness: 0.5,
-                    metalness: 0.5
-                });
-
-                // Left whiskers
-                for (let i = 0; i < 3; i++) {
-                    const leftWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    leftWhisker.rotation.z = -Math.PI / 4;
-                    leftWhisker.position.set(-0.2, 0.1 + i * 0.05, -1.4);
-                    this.otter.add(leftWhisker);
                 }
 
-                // Right whiskers
-                for (let i = 0; i < 3; i++) {
-                    const rightWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    rightWhisker.rotation.z = Math.PI / 4;
-                    rightWhisker.position.set(0.2, 0.1 + i * 0.05, -1.4);
-                    this.otter.add(rightWhisker);
-                }
+                const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                const material = new THREE.MeshStandardMaterial({
+                    color: selectedType.color,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+                const collectible = new THREE.Mesh(geometry, material);
+                collectible.position.x = (Math.random() - 0.5) * 12;
+                collectible.position.z = -30;
+                collectible.position.y = 0.5;
+                collectible.userData = {
+                    type: selectedType.type,
+                    points: selectedType.points
+                };
+                collectible.castShadow = true;
 
-                this.otter.castShadow = true;
-                this.otter.receiveShadow = true;
-                this.scene.add(this.otter);
+                this.scene.add(collectible);
+                this.collectibles.push(collectible);
+            }
+
+            updateCollectibles() {
+                for (let i = this.collectibles.length - 1; i >= 0; i--) {
+                    const collectible = this.collectibles[i];
+                    collectible.position.z += this.obstacleSpeed;
+
+                    // Check collection
+                    if (this.checkCollection(this.otter, collectible)) {
+                        this.score += collectible.userData.points;
+                        this.updateScore();
+                        this.scene.remove(collectible);
+                        this.collectibles.splice(i, 1);
+
+                        // Check for crown unlock
+                        if (this.score >= 300 && !this.unlockedItems.includes('crown')) {
+                            this.unlockedItems.push('crown');
+                            localStorage.setItem('unlockedItems', JSON.stringify(this.unlockedItems));
+                            this.wearCrown();
+                        }
+                    }
+
+                    // Remove collectibles that are behind the camera
+                    if (collectible.position.z > 10) {
+                        this.scene.remove(collectible);
+                        this.collectibles.splice(i, 1);
+                    }
+                }
+            }
+
+            checkCollection(otter, collectible) {
+                const distance = otter.position.distanceTo(collectible.position);
+                return distance < 1;
             }
 
             startGame() {
                 this.isPlaying = true;
-                document.getElementById('start-screen').style.display = 'none';
-            }
-
-            updateOtterPosition() {
-                if (this.moveDirection !== 0) {
-                    this.otter.position.x += this.moveDirection * this.moveSpeed;
-                    // Keep otter within bounds
-                    this.otter.position.x = Math.max(-8, Math.min(8, this.otter.position.x));
-                }
-            }
-
-            spawnObstacle() {
-                // Randomly choose between rock and red box
-                const isRock = Math.random() < 0.7; // 70% chance of rock
-                
-                let obstacle;
-                if (isRock) {
-                    const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 0.5 + 0.5);
-                    const rockMaterial = new THREE.MeshStandardMaterial({
-                        color: 0x808080,
-                        roughness: 0.9,
-                        metalness: 0.1
-                    });
-                    obstacle = new THREE.Mesh(rockGeometry, rockMaterial);
-                    obstacle.rotation.set(
-                        Math.random() * Math.PI,
-                        Math.random() * Math.PI,
-                        Math.random() * Math.PI
-                    );
-                } else {
-                    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-                    const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-                    obstacle = new THREE.Mesh(boxGeometry, boxMaterial);
-                }
-                
-                obstacle.position.x = (Math.random() - 0.5) * 12;
-                obstacle.position.z = -30;
-                obstacle.position.y = 0.5;
-                obstacle.castShadow = true;
-                
-                this.scene.add(obstacle);
-                this.obstacles.push(obstacle);
-            }
-
-            updateObstacles() {
-                for (let i = this.obstacles.length - 1; i >= 0; i--) {
-                    const obstacle = this.obstacles[i];
-                    obstacle.position.z += 0.2;
-
-                    // Check collision
-                    if (this.checkCollision(this.otter, obstacle)) {
-                        this.gameOver = true;
-                        this.showGameOver();
-                    }
-
-                    // Remove obstacles that are behind the camera
-                    if (obstacle.position.z > 10) {
-                        this.scene.remove(obstacle);
-                        this.obstacles.splice(i, 1);
-                        this.score++;
-                        this.updateScore();
-                    }
-                }
-            }
-
-            checkCollision(otter, obstacle) {
-                const distance = otter.position.distanceTo(obstacle.position);
-                return distance < 1;
+                document.getElementById('home-screen').style.display = 'none';
             }
 
             showGameOver() {
+                // Update top scores
+                this.topScores.push({ score: this.score, date: new Date().toISOString() });
+                this.topScores.sort((a, b) => b.score - a.score);
+                this.topScores = this.topScores.slice(0, 10);
+                localStorage.setItem('topScores', JSON.stringify(this.topScores));
+
                 const gameOverDiv = document.createElement('div');
                 gameOverDiv.style.position = 'absolute';
                 gameOverDiv.style.top = '50%';
@@ -565,13 +451,6 @@
                 }, { once: true });
             }
 
-            updateScore() {
-                const scoreElement = document.getElementById('score');
-                if (scoreElement) {
-                    scoreElement.textContent = `Score: ${this.score}`;
-                }
-            }
-
             animate() {
                 if (this.gameOver) return;
 
@@ -582,11 +461,26 @@
                 }
 
                 // Spawn obstacles randomly
-                if (Math.random() < 0.02) {
+                if (Math.random() < this.spawnRate) {
                     this.spawnObstacle();
                 }
 
+                // Spawn collectibles randomly
+                if (Math.random() < this.collectibleSpawnRate) {
+                    this.spawnCollectible();
+                }
+
                 this.updateObstacles();
+                this.updateCollectibles();
+
+                // Level up every 100 points
+                const newLevel = Math.floor(this.score / 100) + 1;
+                if (newLevel > this.level) {
+                    this.level = newLevel;
+                    this.obstacleSpeed += 0.05;
+                    this.spawnRate += 0.005;
+                    this.collectibleSpawnRate += 0.002;
+                }
 
                 // Animate water with subtle wave effect
                 const time = Date.now() * 0.001;
@@ -622,7 +516,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('game-container');
             if (container) {
-                new OtterRiverGame(container);
+                const game = new OtterRiverGame(container);
+                
+                // Add start button listener
+                document.getElementById('start-button').addEventListener('click', () => {
+                    game.startGame();
+                });
             }
         });
     </script>
