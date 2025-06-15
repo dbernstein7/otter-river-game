@@ -436,10 +436,8 @@
                 this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 this.renderer.outputColorSpace = THREE.SRGBColorSpace;
                 this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                this.renderer.toneMappingExposure = 1.0;
+                this.renderer.toneMappingExposure = 1.2;  // Increased exposure for better lighting
                 this.renderer.outputEncoding = THREE.sRGBEncoding;
-                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                this.renderer.toneMappingExposure = 1.0;
                 this.container.appendChild(this.renderer.domElement);
 
                 // Setup camera
@@ -449,10 +447,11 @@
                 this.camera.updateProjectionMatrix();
 
                 // Add lights
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);  // Reduced ambient light
                 this.scene.add(ambientLight);
 
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                // Main directional light with shadows
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);  // Increased intensity
                 directionalLight.position.set(10, 20, 10);
                 directionalLight.castShadow = true;
                 directionalLight.shadow.mapSize.width = 2048;
@@ -463,12 +462,18 @@
                 directionalLight.shadow.camera.right = 20;
                 directionalLight.shadow.camera.top = 20;
                 directionalLight.shadow.camera.bottom = -20;
+                directionalLight.shadow.bias = -0.0001;  // Reduced shadow acne
                 this.scene.add(directionalLight);
 
                 // Add a subtle point light for better depth
-                const pointLight = new THREE.PointLight(0xffffff, 0.5);
+                const pointLight = new THREE.PointLight(0xffffff, 0.6);  // Increased intensity
                 pointLight.position.set(0, 10, 0);
                 this.scene.add(pointLight);
+
+                // Add a blue-tinted light for water effect
+                const waterLight = new THREE.PointLight(0x1E90FF, 0.3);  // Dodger blue tint
+                waterLight.position.set(0, 0, 0);
+                this.scene.add(waterLight);
 
                 // Create environment
                 this.createEnvironment();
@@ -491,23 +496,48 @@
             }
 
             createEnvironment() {
-                // Create sky
+                // Create sky with gradient
                 const skyGeometry = new THREE.SphereGeometry(100, 32, 32);
-                const skyMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x87CEEB,
+                const skyMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        topColor: { value: new THREE.Color(0x0077ff) },
+                        bottomColor: { value: new THREE.Color(0xffffff) },
+                        offset: { value: 33 },
+                        exponent: { value: 0.6 }
+                    },
+                    vertexShader: `
+                        varying vec3 vWorldPosition;
+                        void main() {
+                            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                            vWorldPosition = worldPosition.xyz;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform vec3 topColor;
+                        uniform vec3 bottomColor;
+                        uniform float offset;
+                        uniform float exponent;
+                        varying vec3 vWorldPosition;
+                        void main() {
+                            float h = normalize(vWorldPosition + offset).y;
+                            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+                        }
+                    `,
                     side: THREE.BackSide
                 });
                 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
                 this.scene.add(sky);
 
-                // Create ground
+                // Create ground with better material
                 const groundGeometry = new THREE.PlaneGeometry(100, 100);
                 const groundMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x1E90FF,  // Dodger blue to match water
-                    roughness: 0.3,
-                    metalness: 0.2,
+                    color: 0x1E90FF,
+                    roughness: 0.2,
+                    metalness: 0.3,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.8,
+                    envMapIntensity: 1.0
                 });
                 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
                 ground.rotation.x = -Math.PI / 2;
@@ -515,14 +545,16 @@
                 ground.receiveShadow = true;
                 this.scene.add(ground);
 
-                // Create clouds
+                // Create clouds with better material
                 this.clouds = [];
                 for (let i = 0; i < 10; i++) {
-                    const cloudGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 8, 8);
+                    const cloudGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 16, 16);
                     const cloudMaterial = new THREE.MeshStandardMaterial({
                         color: 0xffffff,
-                        roughness: 1,
-                        metalness: 0
+                        roughness: 0.8,
+                        metalness: 0.1,
+                        transparent: true,
+                        opacity: 0.9
                     });
                     const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
                     cloud.position.set(
@@ -531,24 +563,27 @@
                         (Math.random() - 0.5) * 100
                     );
                     cloud.userData.speed = Math.random() * 0.02 + 0.01;
+                    cloud.castShadow = true;
+                    cloud.receiveShadow = true;
                     this.clouds.push(cloud);
                     this.scene.add(cloud);
                 }
             }
 
             createRiver() {
-                // Create river bed
+                // Create river bed with enhanced material
                 const riverGeometry = new THREE.PlaneGeometry(40, 1000);
                 const riverMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x1E90FF,  // Dodger blue
-                    roughness: 0.3,
-                    metalness: 0.2,
+                    color: 0x1E90FF,
+                    roughness: 0.2,
+                    metalness: 0.3,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.8,
+                    envMapIntensity: 1.0
                 });
                 this.water = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.water.rotation.x = -Math.PI / 2;
-                this.water.position.y = -0.5;  // Lower water level
+                this.water.position.y = -0.5;
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
             }
@@ -856,7 +891,7 @@
                 this.updateObstacles();
                 this.updateCollectibles();
 
-                // Animate water with subtle wave effect
+                // Enhanced water animation
                 const time = Date.now() * 0.001;
                 if (this.water) {
                     const positions = this.water.geometry.attributes.position;
@@ -864,16 +899,20 @@
                     
                     for (let i = 0; i < positions.count; i++) {
                         vertex.fromBufferAttribute(positions, i);
-                        vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.1;
+                        // More complex wave pattern
+                        vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.1 +
+                                 Math.sin(time * 0.5 + vertex.x * 0.2 + vertex.z * 0.2) * 0.05;
                         positions.setY(i, vertex.y);
                     }
                     positions.needsUpdate = true;
                 }
 
-                // Animate clouds
+                // Enhanced cloud animation
                 if (this.clouds) {
                     this.clouds.forEach(cloud => {
                         cloud.position.z += cloud.userData.speed;
+                        // Add subtle floating motion
+                        cloud.position.y += Math.sin(Date.now() * 0.001 + cloud.position.x) * 0.001;
                         if (cloud.position.z > 20) {
                             cloud.position.z = -100;
                             cloud.position.x = (Math.random() - 0.5) * 100;
