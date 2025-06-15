@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Otter River Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #333;
+            position: fixed;
+            touch-action: none;
+        }
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            z-index: 1000;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        #start-screen h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        #start-screen p {
+            margin: 10px 0;
+            font-size: 20px;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #left-control, #right-control {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score">Score: 0</div>
+        <div id="start-screen">
+            <h1>Otter River Adventure</h1>
+            <p>Use the controls at the bottom to move the otter</p>
+            <p>Avoid the red obstacles</p>
+            <p>Tap to start!</p>
+        </div>
+        <div id="controls">
+            <div id="left-control">←</div>
+            <div id="right-control">→</div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        class OtterRiverGame {
+            constructor(container) {
+                this.container = container;
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.clock = new THREE.Clock();
+                this.obstacles = [];
+                this.score = 0;
+                this.gameOver = false;
+                this.otter = null;
+                this.river = null;
+                this.isPlaying = false;
+                this.moveDirection = 0;
+                this.moveSpeed = 0.2;
+                
+                this.init();
+            }
+
+            init() {
+                // Setup renderer
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setClearColor(0x87CEEB); // Sky blue background
+                this.container.appendChild(this.renderer.domElement);
+
+                // Setup camera
+                this.camera.position.set(0, 5, 10);
+                this.camera.lookAt(0, 0, 0);
+
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                this.scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(0, 10, 5);
+                this.scene.add(directionalLight);
+
+                // Create river
+                this.createRiver();
+
+                // Load otter model
+                this.loadOtter();
+
+                // Add event listeners
+                this.setupControls();
+                window.addEventListener('resize', this.onWindowResize.bind(this));
+
+                // Start game loop
+                this.animate();
+            }
+
+            setupControls() {
+                const leftControl = document.getElementById('left-control');
+                const rightControl = document.getElementById('right-control');
+
+                // Touch events for left control
+                leftControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.moveDirection = -1;
+                });
+                leftControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === -1) this.moveDirection = 0;
+                });
+
+                // Touch events for right control
+                rightControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.moveDirection = 1;
+                });
+                rightControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === 1) this.moveDirection = 0;
+                });
+
+                // Start game on any touch
+                this.container.addEventListener('touchstart', (e) => {
+                    if (!this.isPlaying) {
+                        e.preventDefault();
+                        this.startGame();
+                    }
+                });
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            createRiver() {
+                const riverGeometry = new THREE.PlaneGeometry(10, 100);
+                const riverMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x0077be,
+                    side: THREE.DoubleSide
+                });
+                this.river = new THREE.Mesh(riverGeometry, riverMaterial);
+                this.river.rotation.x = -Math.PI / 2;
+                this.river.position.z = -50;
+                this.scene.add(this.river);
+            }
+
+            loadOtter() {
+                const geometry = new THREE.BoxGeometry(1, 1, 2);
+                const material = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+                this.otter = new THREE.Mesh(geometry, material);
+                this.otter.position.y = 0.5;
+                this.scene.add(this.otter);
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                document.getElementById('start-screen').style.display = 'none';
+            }
+
+            updateOtterPosition() {
+                if (this.moveDirection !== 0) {
+                    this.otter.position.x += this.moveDirection * this.moveSpeed;
+                    // Keep otter within bounds
+                    this.otter.position.x = Math.max(-5, Math.min(5, this.otter.position.x));
+                }
+            }
+
+            spawnObstacle() {
+                const geometry = new THREE.BoxGeometry(1, 1, 1);
+                const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+                const obstacle = new THREE.Mesh(geometry, material);
+                
+                obstacle.position.x = (Math.random() - 0.5) * 8;
+                obstacle.position.z = -100;
+                obstacle.position.y = 0.5;
+                
+                this.scene.add(obstacle);
+                this.obstacles.push(obstacle);
+            }
+
+            updateObstacles() {
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obstacle = this.obstacles[i];
+                    obstacle.position.z += 0.2;
+
+                    // Check collision
+                    if (this.checkCollision(this.otter, obstacle)) {
+                        this.gameOver = true;
+                        this.showGameOver();
+                    }
+
+                    // Remove obstacles that are behind the camera
+                    if (obstacle.position.z > 10) {
+                        this.scene.remove(obstacle);
+                        this.obstacles.splice(i, 1);
+                        this.score++;
+                        this.updateScore();
+                    }
+                }
+            }
+
+            checkCollision(otter, obstacle) {
+                const distance = otter.position.distanceTo(obstacle.position);
+                return distance < 1;
+            }
+
+            showGameOver() {
+                const gameOverDiv = document.createElement('div');
+                gameOverDiv.style.position = 'absolute';
+                gameOverDiv.style.top = '50%';
+                gameOverDiv.style.left = '50%';
+                gameOverDiv.style.transform = 'translate(-50%, -50%)';
+                gameOverDiv.style.color = 'white';
+                gameOverDiv.style.fontSize = '32px';
+                gameOverDiv.style.textAlign = 'center';
+                gameOverDiv.style.background = 'rgba(0,0,0,0.8)';
+                gameOverDiv.style.padding = '20px';
+                gameOverDiv.style.borderRadius = '10px';
+                gameOverDiv.innerHTML = `Game Over!<br>Score: ${this.score}<br>Tap to restart`;
+                
+                this.container.appendChild(gameOverDiv);
+                
+                this.container.addEventListener('touchstart', () => {
+                    location.reload();
+                }, { once: true });
+            }
+
+            updateScore() {
+                const scoreElement = document.getElementById('score');
+                if (scoreElement) {
+                    scoreElement.textContent = `Score: ${this.score}`;
+                }
+            }
+
+            animate() {
+                requestAnimationFrame(this.animate.bind(this));
+
+                if (this.isPlaying && !this.gameOver) {
+                    this.updateOtterPosition();
+                    
+                    // Spawn obstacles randomly
+                    if (Math.random() < 0.02) {
+                        this.spawnObstacle();
+                    }
+
+                    this.updateObstacles();
+                }
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('game-container');
+            if (container) {
+                new OtterRiverGame(container);
+            }
+        });
+    </script>
+</body>
+</html> 
