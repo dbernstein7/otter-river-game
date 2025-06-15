@@ -596,7 +596,7 @@
                     hat.userData.isHat = true;
 
                     // Create hat brim (torus)
-                    const brimGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 32);
+                    const brimGeometry = new THREE.TorusGeometry(0.25, 0.05, 16, 32);
                     const brimMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
@@ -607,18 +607,18 @@
                     hat.add(brim);
 
                     // Create hat top (cylinder with larger radius)
-                    const topGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.5, 32);
+                    const topGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
                     const topMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
                         metalness: 0.2
                     });
                     const top = new THREE.Mesh(topGeometry, topMaterial);
-                    top.position.y = 0.3;  // Position above brim
+                    top.position.y = 0.25;  // Position above brim
                     hat.add(top);
 
                     // Position hat on otter's head
-                    hat.position.set(0, 0.4, -0.7);  // Adjusted to sit properly on head
+                    hat.position.set(0, 0.3, -0.7);  // Adjusted to sit properly on head
                     hat.rotation.y = Math.PI / 2;  // Match head rotation
                     this.otter.add(hat);
                 }
@@ -1433,7 +1433,7 @@
                 this.otter.add(rightEar);
 
                 // Create flattened tail
-                const tailGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.6);
+                const tailGeometry = new THREE.BoxGeometry(0.4, 0.15, 0.6);
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
@@ -1442,7 +1442,7 @@
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
                 tail.position.set(0, 0.1, 0.7);
                 tail.rotation.y = Math.PI / 2;
-                tail.rotation.z = Math.PI / 6;
+                tail.rotation.x = Math.PI / 2;  // Rotate 90 degrees on X axis
                 tail.castShadow = true;
                 this.otter.add(tail);
 
@@ -1547,11 +1547,13 @@
             spawnObstacle() {
                 // Define obstacle types with their properties
                 const obstacleTypes = [
-                    { type: 'rock', chance: 0.3, geometry: new THREE.DodecahedronGeometry(0.5, 1), 
+                    { type: 'rock', chance: 0.3, 
+                      geometry: new THREE.DodecahedronGeometry(0.5, 2),  // Increased detail level
                       material: new THREE.MeshStandardMaterial({ 
                           color: 0x808080,
-                          roughness: 0.8, 
-                          metalness: 0.2
+                          roughness: 0.9,  // Increased roughness
+                          metalness: 0.1,  // Reduced metalness
+                          flatShading: true  // Add flat shading for more angular look
                       }),
                       yPos: -0.3, scale: 1.0 },
                     { type: 'pole', chance: 0.2, geometry: new THREE.CylinderGeometry(0.15, 0.15, 2, 8),
@@ -1629,6 +1631,47 @@
 
                 // Add special behaviors and features for each obstacle type
                 switch(selectedType.type) {
+                    case 'rock':
+                        // Add surface details to rock
+                        const rock = obstacle;
+                        rock.geometry.attributes.position.needsUpdate = true;
+                        rock.geometry.computeVertexNormals();
+                        
+                        // Add random displacement to vertices for more natural look
+                        const positions = rock.geometry.attributes.position;
+                        for (let i = 0; i < positions.count; i++) {
+                            const x = positions.getX(i);
+                            const y = positions.getY(i);
+                            const z = positions.getZ(i);
+                            
+                            // Add random displacement
+                            positions.setXYZ(
+                                i,
+                                x + (Math.random() - 0.5) * 0.1,
+                                y + (Math.random() - 0.5) * 0.1,
+                                z + (Math.random() - 0.5) * 0.1
+                            );
+                        }
+                        
+                        // Add some smaller rocks around the main rock
+                        for (let i = 0; i < 3; i++) {
+                            const smallRockGeometry = new THREE.DodecahedronGeometry(0.15, 1);
+                            const smallRock = new THREE.Mesh(smallRockGeometry, selectedType.material);
+                            const angle = (i / 3) * Math.PI * 2;
+                            smallRock.position.set(
+                                Math.cos(angle) * 0.4,
+                                -0.1,
+                                Math.sin(angle) * 0.4
+                            );
+                            smallRock.rotation.set(
+                                Math.random() * Math.PI,
+                                Math.random() * Math.PI,
+                                Math.random() * Math.PI
+                            );
+                            rock.add(smallRock);
+                        }
+                        break;
+
                     case 'pole':
                         // Add rope wrapping
                         const ropeGeometry = new THREE.TorusGeometry(0.17, 0.03, 8, 16);
