@@ -1167,7 +1167,7 @@
                 collectible.position.x = (Math.random() - 0.5) * 12;
                 collectible.position.z = -30;
                 collectible.position.y = -0.3;
-                collectible.rotation.y = Math.PI / 2;  // Face forward
+                collectible.rotation.y = 0;  // Changed from Math.PI / 2 to 0 to make fish face forward
                 collectible.userData = {
                     type: selectedType.type,
                     points: selectedType.points,
