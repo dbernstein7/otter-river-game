@@ -1112,8 +1112,27 @@
 
             checkCollision(otter, obstacle) {
                 const distance = otter.position.distanceTo(obstacle.position);
-                const collisionRadius = obstacle.geometry.type === 'CylinderGeometry' ? 0.3 : 0.5;
-                if (distance < collisionRadius) {
+                let collisionRadius;
+                let isCollision = false;
+                
+                if (obstacle.geometry.type === 'CylinderGeometry') {
+                    // For wooden poles, check both horizontal distance and vertical position
+                    const horizontalDistance = Math.sqrt(
+                        Math.pow(otter.position.x - obstacle.position.x, 2) +
+                        Math.pow(otter.position.z - obstacle.position.z, 2)
+                    );
+                    const verticalDistance = Math.abs(otter.position.y - obstacle.position.y);
+                    collisionRadius = 0.4; // Increased from 0.3
+                    
+                    // Check if otter is within the pole's height range and horizontal distance
+                    isCollision = horizontalDistance < collisionRadius && verticalDistance < 1.0;
+                } else {
+                    // For rocks, use simple distance check
+                    collisionRadius = 0.5;
+                    isCollision = distance < collisionRadius;
+                }
+
+                if (isCollision) {
                     this.lives--;
                     this.updateLives();
                     
