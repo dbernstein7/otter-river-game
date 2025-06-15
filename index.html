@@ -641,7 +641,9 @@
                     const baseMaterial = new THREE.MeshStandardMaterial({
                         color: 0xFFD700,
                         roughness: 0.3,
-                        metalness: 0.8
+                        metalness: 0.8,
+                        emissive: 0xFFD700,
+                        emissiveIntensity: 0.2
                     });
                     const base = new THREE.Mesh(baseGeometry, baseMaterial);
                     base.rotation.x = Math.PI / 2;
@@ -652,7 +654,9 @@
                     const peakMaterial = new THREE.MeshStandardMaterial({
                         color: 0xFFD700,
                         roughness: 0.3,
-                        metalness: 0.8
+                        metalness: 0.8,
+                        emissive: 0xFFD700,
+                        emissiveIntensity: 0.2
                     });
 
                     // Add three peaks at different angles
@@ -668,6 +672,28 @@
                         crown.add(peak);
                     }
 
+                    // Add jewels to the crown
+                    const jewelGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+                    const jewelMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xFF0000,
+                        roughness: 0.2,
+                        metalness: 0.8,
+                        emissive: 0xFF0000,
+                        emissiveIntensity: 0.5
+                    });
+
+                    // Add jewels between peaks
+                    for (let i = 0; i < 3; i++) {
+                        const jewel = new THREE.Mesh(jewelGeometry, jewelMaterial);
+                        const angle = (i / 3) * Math.PI * 2 + Math.PI / 3;
+                        jewel.position.set(
+                            Math.cos(angle) * 0.2,
+                            0.1,
+                            Math.sin(angle) * 0.2
+                        );
+                        crown.add(jewel);
+                    }
+
                     // Position crown on otter's head
                     crown.position.set(0, 0.4, -0.7);
                     crown.rotation.y = Math.PI / 2;
@@ -677,15 +703,15 @@
 
             spawnCollectible() {
                 const types = [
-                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.4, shape: 'fish', emoji: '🐟' },
-                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.2, shape: 'fish', emoji: '🌈' },
+                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.3, shape: 'fish', emoji: '🐟' },
+                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.15, shape: 'fish', emoji: '🌈' },
                     { type: 'goldenFish', points: 5, color: 0xFFD700, chance: 0.15, shape: 'fish', emoji: '🌟' },
                     { type: 'emeraldFish', points: 7, color: 0x00FF00, chance: 0.1, shape: 'fish', emoji: '💎' },
                     { type: 'diamondFish', points: 10, color: 0x00FFFF, chance: 0.05, shape: 'fish', emoji: '💠' },
                     { type: 'clam', points: 15, color: 0xFFFFFF, chance: 0.05, shape: 'clam', emoji: '🦪' },
-                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.02, shape: 'seahorse', emoji: '🐠' },
-                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.02, shape: 'jellyfish', emoji: '🐙' },
-                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.01, shape: 'starfish', emoji: '⭐' }
+                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.1, shape: 'seahorse', emoji: '🐠' },
+                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.1, shape: 'jellyfish', emoji: '🐙' },
+                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.1, shape: 'starfish', emoji: '⭐' }
                 ];
 
                 // Adjust chances based on level
@@ -950,6 +976,16 @@
                                 const pearl = new THREE.Mesh(pearlGeometry, pearlMaterial);
                                 pearl.position.y = 0.1;
                                 collectible.add(pearl);
+
+                                // Add pearl glow
+                                const pearlGlowGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                                const pearlGlowMaterial = new THREE.MeshBasicMaterial({
+                                    color: 0xFFFFFF,
+                                    transparent: true,
+                                    opacity: 0.3
+                                });
+                                const pearlGlow = new THREE.Mesh(pearlGlowGeometry, pearlGlowMaterial);
+                                collectible.add(pearlGlow);
                             }
                             break;
 
@@ -1012,6 +1048,22 @@
                             rightPectoralFin.position.set(-0.1, 0, 0.1);
                             rightPectoralFin.rotation.z = -Math.PI / 2;
                             collectible.add(rightPectoralFin);
+
+                            // Add eyes
+                            const eyeGeometry = new THREE.SphereGeometry(0.03, 8, 8);
+                            const eyeMaterial = new THREE.MeshStandardMaterial({
+                                color: 0x000000,
+                                roughness: 0.3,
+                                metalness: 0.8
+                            });
+                            
+                            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                            leftEye.position.set(0.1, 0.3, 0.1);
+                            collectible.add(leftEye);
+                            
+                            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                            rightEye.position.set(-0.1, 0.3, 0.1);
+                            collectible.add(rightEye);
                             break;
 
                         case 'jellyfish':
@@ -1095,6 +1147,18 @@
                                 );
                                 collectible.add(detail);
                             }
+
+                            // Add glow effect
+                            const starGlowGeometry = new THREE.StarGeometry(0.45, 5, 0.25);
+                            const starGlowMaterial = new THREE.MeshBasicMaterial({
+                                color: selectedType.color,
+                                transparent: true,
+                                opacity: 0.3,
+                                side: THREE.DoubleSide
+                            });
+                            const starGlow = new THREE.Mesh(starGlowGeometry, starGlowMaterial);
+                            starGlow.rotation.x = Math.PI / 2;
+                            collectible.add(starGlow);
                             break;
                     }
                 }
@@ -1108,7 +1172,6 @@
                     points: selectedType.points,
                     emoji: selectedType.emoji
                 };
-                collectible.castShadow = true;
 
                 // Add green glow plane under the collectible
                 const glowGeometry = new THREE.CircleGeometry(0.8, 32);
@@ -1132,6 +1195,12 @@
                     const collectible = this.collectibles[i];
                     collectible.position.z += this.obstacleSpeed;
 
+                    // Add rotation animation to collectibles
+                    collectible.rotation.y += 0.02;
+                    if (collectible.userData.type === 'jellyfish') {
+                        collectible.position.y += Math.sin(Date.now() * 0.003) * 0.01;
+                    }
+
                     // Check collection
                     if (this.checkCollection(this.otter, collectible)) {
                         this.score += collectible.userData.points;
@@ -1151,6 +1220,9 @@
                                 crownButton.textContent = 'Wear';
                                 crownButton.parentElement.classList.remove('locked');
                                 crownButton.parentElement.querySelector('span:nth-child(2)').textContent = 'Unlocked!';
+                                
+                                // Add click event listener to the crown button
+                                crownButton.onclick = () => this.wearCrown();
                             }
                             
                             this.wearCrown();
@@ -1179,9 +1251,9 @@
                 this.lives = 3;
                 this.levelTimer = 30;
                 this.lastLevelTime = Date.now();
-                this.obstacleSpeed = 0.15;  // Reduced initial speed
-                this.spawnRate = 0.01;  // Reduced initial spawn rate
-                this.collectibleSpawnRate = 0.02;  // Keep collectible rate the same
+                this.obstacleSpeed = 0.15;
+                this.spawnRate = 0.025;  // Increased from 0.015
+                this.collectibleSpawnRate = 0.01;  // Reduced from 0.02
                 
                 // Update UI
                 this.updateScore();
@@ -1263,8 +1335,8 @@
                         this.level++;
                         this.levelTimer = 30;
                         this.obstacleSpeed += 0.03;  // Smaller speed increase
-                        this.spawnRate += 0.002;    // Smaller spawn rate increase
-                        this.collectibleSpawnRate += 0.002;
+                        this.spawnRate += 0.003;    // Increased from 0.002
+                        this.collectibleSpawnRate += 0.001;  // Reduced from 0.002
                         this.updateLevel();
                     }
 
@@ -1272,13 +1344,13 @@
                 }
 
                 // Spawn obstacles randomly with level-based probability
-                const spawnChance = this.spawnRate * (1 + (this.level - 1) * 0.1);  // Gradual increase based on level
+                const spawnChance = this.spawnRate * (1 + (this.level - 1) * 0.15);  // Increased from 0.1
                 if (Math.random() < spawnChance) {
                     this.spawnObstacle();
                 }
 
-                // Spawn collectibles randomly
-                if (Math.random() < this.collectibleSpawnRate) {
+                // Spawn collectibles randomly with reduced chance
+                if (Math.random() < this.collectibleSpawnRate * (1 + (this.level - 1) * 0.05)) {  // Reduced from 0.1
                     this.spawnCollectible();
                 }
 
