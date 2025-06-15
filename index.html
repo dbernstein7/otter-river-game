@@ -330,7 +330,7 @@
                 // Create otter group to hold all parts
                 this.otter = new THREE.Group();
                 this.otter.position.y = 0.5;
-                this.otter.rotation.y = Math.PI; // Rotate otter to face forward
+                this.otter.rotation.y = 0; // Reset rotation to face forward
 
                 // Create otter body (main torso)
                 const bodyGeometry = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
@@ -341,7 +341,7 @@
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.rotation.x = Math.PI / 2;
-                body.position.z = -0.2; // Adjusted for new orientation
+                body.position.z = 0.2; // Reset position
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -353,7 +353,7 @@
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.2, -1.1); // Adjusted for new orientation
+                head.position.set(0, 0.2, 1.1); // Reset position
                 head.castShadow = true;
                 this.otter.add(head);
 
@@ -365,8 +365,8 @@
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.rotation.x = Math.PI / 2; // Adjusted for new orientation
-                snout.position.set(0, 0.1, -1.4); // Adjusted for new orientation
+                snout.rotation.x = -Math.PI / 2; // Reset rotation
+                snout.position.set(0, 0.1, 1.4); // Reset position
                 snout.castShadow = true;
                 this.otter.add(snout);
 
@@ -378,10 +378,10 @@
                     metalness: 0.8
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(-0.15, 0.3, -1.2); // Adjusted for new orientation
+                leftEye.position.set(-0.15, 0.3, 1.2); // Reset position
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(0.15, 0.3, -1.2); // Adjusted for new orientation
+                rightEye.position.set(0.15, 0.3, 1.2); // Reset position
                 this.otter.add(rightEye);
 
                 // Create otter ears
@@ -392,11 +392,11 @@
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(-0.2, 0.5, -1.0); // Adjusted for new orientation
+                leftEar.position.set(-0.2, 0.5, 1.0); // Reset position
                 leftEar.castShadow = true;
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(0.2, 0.5, -1.0); // Adjusted for new orientation
+                rightEar.position.set(0.2, 0.5, 1.0); // Reset position
                 rightEar.castShadow = true;
                 this.otter.add(rightEar);
 
@@ -409,7 +409,7 @@
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
                 tail.rotation.x = Math.PI / 2;
-                tail.position.set(0, 0.1, 1.0); // Adjusted for new orientation
+                tail.position.set(0, 0.1, -1.0); // Reset position
                 tail.castShadow = true;
                 this.otter.add(tail);
 
@@ -423,23 +423,23 @@
 
                 // Front legs
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(-0.3, -0.2, -0.6); // Adjusted for new orientation
+                frontLeftLeg.position.set(-0.3, -0.2, 0.6); // Reset position
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
 
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(0.3, -0.2, -0.6); // Adjusted for new orientation
+                frontRightLeg.position.set(0.3, -0.2, 0.6); // Reset position
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
 
                 // Back legs
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(-0.3, -0.2, 0.6); // Adjusted for new orientation
+                backLeftLeg.position.set(-0.3, -0.2, -0.6); // Reset position
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
 
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(0.3, -0.2, 0.6); // Adjusted for new orientation
+                backRightLeg.position.set(0.3, -0.2, -0.6); // Reset position
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
 
@@ -454,16 +454,16 @@
                 // Left whiskers
                 for (let i = 0; i < 3; i++) {
                     const leftWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    leftWhisker.rotation.z = -Math.PI / 4; // Adjusted for new orientation
-                    leftWhisker.position.set(-0.2, 0.1 + i * 0.05, -1.4); // Adjusted for new orientation
+                    leftWhisker.rotation.z = Math.PI / 4; // Reset rotation
+                    leftWhisker.position.set(-0.2, 0.1 + i * 0.05, 1.4); // Reset position
                     this.otter.add(leftWhisker);
                 }
 
                 // Right whiskers
                 for (let i = 0; i < 3; i++) {
                     const rightWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    rightWhisker.rotation.z = Math.PI / 4; // Adjusted for new orientation
-                    rightWhisker.position.set(0.2, 0.1 + i * 0.05, -1.4); // Adjusted for new orientation
+                    rightWhisker.rotation.z = -Math.PI / 4; // Reset rotation
+                    rightWhisker.position.set(0.2, 0.1 + i * 0.05, 1.4); // Reset position
                     this.otter.add(rightWhisker);
                 }
 
