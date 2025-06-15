@@ -211,12 +211,13 @@
                     this.scene.add(cloud);
                 }
 
-                // Add ground
-                const groundGeometry = new THREE.PlaneGeometry(100, 100);
+                // Add ground with repeating texture
+                const groundGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
                 const groundMaterial = new THREE.MeshStandardMaterial({
                     color: 0x7CFC00,
                     roughness: 0.8,
-                    metalness: 0.2
+                    metalness: 0.2,
+                    side: THREE.DoubleSide
                 });
                 this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
                 this.ground.rotation.x = -Math.PI / 2;
@@ -276,13 +277,15 @@
             }
 
             createRiver() {
-                const riverGeometry = new THREE.PlaneGeometry(20, 100);
+                // Create river with repeating pattern
+                const riverGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
                 const riverMaterial = new THREE.MeshStandardMaterial({
                     color: 0x0077be,
                     metalness: 0.1,
                     roughness: 0.2,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
                 });
                 this.river = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.river.rotation.x = -Math.PI / 2;
@@ -290,14 +293,15 @@
                 this.river.receiveShadow = true;
                 this.scene.add(this.river);
 
-                // Add water animation
+                // Add water with repeating pattern
                 const waterGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
                 const waterMaterial = new THREE.MeshStandardMaterial({
                     color: 0x0077be,
                     metalness: 0.3,
                     roughness: 0.1,
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
                 });
                 this.water = new THREE.Mesh(waterGeometry, waterMaterial);
                 this.water.rotation.x = -Math.PI / 2;
@@ -456,7 +460,7 @@
 
                 this.updateObstacles();
 
-                // Animate water
+                // Animate water with subtle wave effect
                 const time = Date.now() * 0.001;
                 if (this.water) {
                     const positions = this.water.geometry.attributes.position;
@@ -464,7 +468,7 @@
                     
                     for (let i = 0; i < positions.count; i++) {
                         vertex.fromBufferAttribute(positions, i);
-                        vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.2;
+                        vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.1;
                         positions.setY(i, vertex.y);
                     }
                     positions.needsUpdate = true;
@@ -480,28 +484,6 @@
                             cloud.position.y = Math.random() * 20 + 10;
                         }
                     });
-                }
-
-                // Move ground and river for parallax effect
-                if (this.isPlaying) {
-                    if (this.ground) {
-                        this.ground.position.z += 0.1;
-                        if (this.ground.position.z > 50) {
-                            this.ground.position.z = -50;
-                        }
-                    }
-                    if (this.river) {
-                        this.river.position.z += 0.2;
-                        if (this.river.position.z > 50) {
-                            this.river.position.z = -50;
-                        }
-                    }
-                    if (this.water) {
-                        this.water.position.z += 0.2;
-                        if (this.water.position.z > 50) {
-                            this.water.position.z = -50;
-                        }
-                    }
                 }
 
                 this.renderer.render(this.scene, this.camera);
