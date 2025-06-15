@@ -436,7 +436,7 @@
                 // Create ground
                 const groundGeometry = new THREE.PlaneGeometry(100, 100);
                 const groundMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x228B22,
+                    color: 0x228B22,  // Forest green
                     roughness: 0.8,
                     metalness: 0.2
                 });
@@ -471,9 +471,11 @@
                 // Create river bed
                 const riverGeometry = new THREE.PlaneGeometry(20, 1000);
                 const riverMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x1E90FF,
+                    color: 0x1E90FF,  // Dodger blue
                     roughness: 0.3,
-                    metalness: 0.2
+                    metalness: 0.2,
+                    transparent: true,
+                    opacity: 0.8
                 });
                 this.water = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.water.rotation.x = -Math.PI / 2;
@@ -484,7 +486,7 @@
                 // Create river banks
                 const bankGeometry = new THREE.BoxGeometry(20, 1, 1000);
                 const bankMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
+                    color: 0x8B4513,  // Saddle brown
                     roughness: 0.8,
                     metalness: 0.2
                 });
