@@ -469,7 +469,7 @@
 
             createRiver() {
                 // Create river bed
-                const riverGeometry = new THREE.PlaneGeometry(20, 1000);
+                const riverGeometry = new THREE.PlaneGeometry(40, 1000);  // Increased width to 40
                 const riverMaterial = new THREE.MeshStandardMaterial({
                     color: 0x1E90FF,  // Dodger blue
                     roughness: 0.3,
@@ -482,23 +482,6 @@
                 this.water.position.y = 0;
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
-
-                // Create river banks
-                const bankGeometry = new THREE.BoxGeometry(20, 1, 1000);
-                const bankMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,  // Saddle brown
-                    roughness: 0.8,
-                    metalness: 0.2
-                });
-                const leftBank = new THREE.Mesh(bankGeometry, bankMaterial);
-                leftBank.position.set(-10, -0.5, 0);
-                leftBank.receiveShadow = true;
-                this.scene.add(leftBank);
-
-                const rightBank = new THREE.Mesh(bankGeometry, bankMaterial);
-                rightBank.position.set(10, -0.5, 0);
-                rightBank.receiveShadow = true;
-                this.scene.add(rightBank);
             }
 
             onWindowResize() {
