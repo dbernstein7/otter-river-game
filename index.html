@@ -1798,12 +1798,19 @@
                         sharkBody.rotation.z = -Math.PI / 2;
                         obstacle.add(sharkBody);
 
-                        // Create shark head
-                        const sharkHeadGeometry = new THREE.ConeGeometry(0.25, 0.5, 8);
+                        // Create shark head (smaller, slightly pointed sphere)
+                        const sharkHeadGeometry = new THREE.SphereGeometry(0.22, 16, 16);
                         const sharkHead = new THREE.Mesh(sharkHeadGeometry, sharkMaterial);
-                        sharkHead.position.set(-0.6, 0, 0);
-                        sharkHead.rotation.z = Math.PI / 2;
+                        sharkHead.position.set(-0.7, 0, 0);
+                        sharkHead.scale.set(1, 0.8, 1.2); // Slightly elongated
                         obstacle.add(sharkHead);
+
+                        // Create nose tip (small cone for subtle point)
+                        const noseGeometry = new THREE.ConeGeometry(0.07, 0.15, 8);
+                        const nose = new THREE.Mesh(noseGeometry, sharkMaterial);
+                        nose.position.set(-0.85, 0, 0);
+                        nose.rotation.z = Math.PI / 2;
+                        obstacle.add(nose);
 
                         // Create dorsal fin
                         const dorsalFinGeometry = new THREE.Shape();
@@ -1863,10 +1870,10 @@
                             metalness: 0.8
                         });
                         const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                        leftEye.position.set(-0.7, 0.1, 0.1);
+                        leftEye.position.set(-0.8, 0.07, 0.09);
                         obstacle.add(leftEye);
                         const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                        rightEye.position.set(-0.7, 0.1, -0.1);
+                        rightEye.position.set(-0.8, 0.07, -0.09);
                         obstacle.add(rightEye);
 
                         // Create gills
@@ -1878,7 +1885,7 @@
                         });
                         for (let i = 0; i < 3; i++) {
                             const gill = new THREE.Mesh(gillGeometry, gillMaterial);
-                            gill.position.set(-0.4, 0, 0.2 + i * 0.1);
+                            gill.position.set(-0.55, 0, 0.2 + i * 0.1);
                             obstacle.add(gill);
                         }
                         break;
