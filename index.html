@@ -128,9 +128,14 @@
             }
 
             init() {
-                // Setup renderer
+                // Renderer setup
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setClearColor(0x87CEEB); // Sky blue background
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.renderer.outputEncoding = THREE.sRGBEncoding;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                this.renderer.toneMappingExposure = 1.0;
                 this.container.appendChild(this.renderer.domElement);
 
                 // Setup camera
@@ -138,12 +143,29 @@
                 this.camera.lookAt(0, 0, 0);
 
                 // Add lights
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
                 this.scene.add(ambientLight);
 
                 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(0, 10, 5);
+                directionalLight.position.set(10, 20, 10);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                directionalLight.shadow.camera.near = 0.5;
+                directionalLight.shadow.camera.far = 50;
+                directionalLight.shadow.camera.left = -20;
+                directionalLight.shadow.camera.right = 20;
+                directionalLight.shadow.camera.top = 20;
+                directionalLight.shadow.camera.bottom = -20;
                 this.scene.add(directionalLight);
+
+                // Add a subtle point light for better depth
+                const pointLight = new THREE.PointLight(0xffffff, 0.5);
+                pointLight.position.set(0, 10, 0);
+                this.scene.add(pointLight);
+
+                // Create environment
+                this.createEnvironment();
 
                 // Create river
                 this.createRiver();
@@ -157,6 +179,127 @@
 
                 // Start game loop
                 this.animate();
+            }
+
+            createEnvironment() {
+                // Add skybox
+                const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
+                const skyboxMaterials = [
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // right
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // left
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // top
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // bottom
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // front
+                    new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide })  // back
+                ];
+                const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+                this.scene.add(skybox);
+
+                // Add ground
+                const groundGeometry = new THREE.PlaneGeometry(100, 100);
+                const groundMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x7CFC00,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.position.y = -0.5;
+                ground.receiveShadow = true;
+                this.scene.add(ground);
+
+                // Add trees
+                for (let i = 0; i < 10; i++) {
+                    const tree = this.createTree();
+                    tree.position.x = (Math.random() - 0.5) * 40;
+                    tree.position.z = -Math.random() * 80;
+                    this.scene.add(tree);
+                }
+
+                // Add rocks
+                for (let i = 0; i < 15; i++) {
+                    const rock = this.createRock();
+                    rock.position.x = (Math.random() - 0.5) * 30;
+                    rock.position.z = -Math.random() * 90;
+                    this.scene.add(rock);
+                }
+            }
+
+            createTree() {
+                const tree = new THREE.Group();
+
+                // Tree trunk
+                const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 4, 8);
+                const trunkMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x8B4513,
+                    roughness: 0.9
+                });
+                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                trunk.position.y = 2;
+                trunk.castShadow = true;
+                tree.add(trunk);
+
+                // Tree top
+                const topGeometry = new THREE.ConeGeometry(2, 4, 8);
+                const topMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x228B22,
+                    roughness: 0.8
+                });
+                const top = new THREE.Mesh(topGeometry, topMaterial);
+                top.position.y = 5;
+                top.castShadow = true;
+                tree.add(top);
+
+                return tree;
+            }
+
+            createRock() {
+                const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 0.5 + 0.5);
+                const rockMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x808080,
+                    roughness: 0.9,
+                    metalness: 0.1
+                });
+                const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+                rock.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                rock.castShadow = true;
+                return rock;
+            }
+
+            createRiver() {
+                const riverGeometry = new THREE.PlaneGeometry(20, 100);
+                const riverMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x0077be,
+                    metalness: 0.1,
+                    roughness: 0.2,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                this.river = new THREE.Mesh(riverGeometry, riverMaterial);
+                this.river.rotation.x = -Math.PI / 2;
+                this.river.position.z = -50;
+                this.river.receiveShadow = true;
+                this.scene.add(this.river);
+
+                // Add water animation
+                const waterGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
+                const waterMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x0077be,
+                    metalness: 0.3,
+                    roughness: 0.1,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                this.water = new THREE.Mesh(waterGeometry, waterMaterial);
+                this.water.rotation.x = -Math.PI / 2;
+                this.water.position.z = -50;
+                this.water.position.y = 0.1;
+                this.water.receiveShadow = true;
+                this.scene.add(this.water);
             }
 
             setupControls() {
@@ -196,18 +339,6 @@
                 this.camera.aspect = window.innerWidth / window.innerHeight;
                 this.camera.updateProjectionMatrix();
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            createRiver() {
-                const riverGeometry = new THREE.PlaneGeometry(10, 100);
-                const riverMaterial = new THREE.MeshPhongMaterial({
-                    color: 0x0077be,
-                    side: THREE.DoubleSide
-                });
-                this.river = new THREE.Mesh(riverGeometry, riverMaterial);
-                this.river.rotation.x = -Math.PI / 2;
-                this.river.position.z = -50;
-                this.scene.add(this.river);
             }
 
             loadOtter() {
@@ -299,17 +430,29 @@
             }
 
             animate() {
+                if (this.gameOver) return;
+
                 requestAnimationFrame(this.animate.bind(this));
 
-                if (this.isPlaying && !this.gameOver) {
-                    this.updateOtterPosition();
-                    
-                    // Spawn obstacles randomly
-                    if (Math.random() < 0.02) {
-                        this.spawnObstacle();
-                    }
+                // Spawn obstacles randomly
+                if (Math.random() < 0.02) {
+                    this.spawnObstacle();
+                }
 
-                    this.updateObstacles();
+                this.updateObstacles();
+
+                // Animate water
+                const time = Date.now() * 0.001;
+                if (this.water) {
+                    const positions = this.water.geometry.attributes.position;
+                    const vertex = new THREE.Vector3();
+                    
+                    for (let i = 0; i < positions.count; i++) {
+                        vertex.fromBufferAttribute(positions, i);
+                        vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.2;
+                        positions.setY(i, vertex.y);
+                    }
+                    positions.needsUpdate = true;
                 }
 
                 this.renderer.render(this.scene, this.camera);
