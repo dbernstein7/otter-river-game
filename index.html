@@ -208,14 +208,6 @@
                 ground.receiveShadow = true;
                 this.scene.add(ground);
 
-                // Add trees
-                for (let i = 0; i < 10; i++) {
-                    const tree = this.createTree();
-                    tree.position.x = (Math.random() - 0.5) * 40;
-                    tree.position.z = -Math.random() * 80;
-                    this.scene.add(tree);
-                }
-
                 // Add rocks
                 for (let i = 0; i < 15; i++) {
                     const rock = this.createRock();
@@ -223,34 +215,6 @@
                     rock.position.z = -Math.random() * 90;
                     this.scene.add(rock);
                 }
-            }
-
-            createTree() {
-                const tree = new THREE.Group();
-
-                // Tree trunk
-                const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 4, 8);
-                const trunkMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x8B4513,
-                    roughness: 0.9
-                });
-                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-                trunk.position.y = 2;
-                trunk.castShadow = true;
-                tree.add(trunk);
-
-                // Tree top
-                const topGeometry = new THREE.ConeGeometry(2, 4, 8);
-                const topMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x228B22,
-                    roughness: 0.8
-                });
-                const top = new THREE.Mesh(topGeometry, topMaterial);
-                top.position.y = 5;
-                top.castShadow = true;
-                tree.add(top);
-
-                return tree;
             }
 
             createRock() {
