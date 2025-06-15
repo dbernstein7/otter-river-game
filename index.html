@@ -926,7 +926,7 @@
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.CapsuleGeometry(0.4, 0.8, 8, 16);  // Rounder body with more segments
+                const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 8, 16);  // Rounder body with more segments
                 const bodyMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,  // Lighter brown (Chocolate)
                     roughness: 0.7,
@@ -935,7 +935,7 @@
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.3;
                 body.rotation.y = Math.PI / 2;  // Rotate 90 degrees
-                body.scale.set(1, 0.5, 1);  // Slightly rounder
+                body.scale.set(1.2, 0.5, 0.8);  // Make body more oval-shaped
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -949,7 +949,7 @@
                 const head = new THREE.Mesh(headGeometry, headMaterial);
                 head.position.set(0, 0.4, -0.7);  // Lowered head position to match flattened body
                 head.rotation.y = Math.PI / 2;  // Match body rotation
-                head.scale.set(1, 0.6, 1);  // Flatten the head slightly
+                head.scale.set(1, 0.6, 0.8);  // Make head slightly oval to match body
                 head.castShadow = true;
                 this.otter.add(head);
 
@@ -964,7 +964,7 @@
                 snout.position.set(0, 0.4, -0.9);  // Lowered snout position
                 snout.rotation.x = Math.PI / 2;
                 snout.rotation.y = Math.PI / 2;  // Match body rotation
-                snout.scale.set(1, 0.6, 1);  // Flatten the snout slightly
+                snout.scale.set(1, 0.6, 0.8);  // Make snout slightly oval to match head
                 snout.castShadow = true;
                 this.otter.add(snout);
 
