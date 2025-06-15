@@ -270,25 +270,43 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM Content Loaded');
             
-            // Initialize game first
+            // Initialize game
             const container = document.getElementById('game-container');
-            if (!container) {
+            if (container) {
+                console.log('Container found, initializing game');
+                gameInstance = new OtterRiverGame(container);
+                
+                // Add start button listener
+                const startButton = document.getElementById('start-button');
+                if (startButton) {
+                    console.log('Start button found, adding click listener');
+                    startButton.addEventListener('click', () => {
+                        console.log('Start button clicked');
+                        if (gameInstance) {
+                            gameInstance.startGame();
+                        }
+                    });
+                } else {
+                    console.error('Start button not found');
+                }
+
+                // Add wear hat button listener
+                const hatButton = document.querySelector('.unlockable button');
+                if (hatButton) {
+                    hatButton.addEventListener('click', () => {
+                        if (gameInstance) {
+                            gameInstance.wearHat();
+                        }
+                    });
+                }
+            } else {
                 console.error('Game container not found');
-                return;
             }
-            
-            console.log('Container found, initializing game');
-            gameInstance = new OtterRiverGame(container);
-            console.log('Game instance created:', gameInstance);
-            
-            // Add collapsible functionality with touch support
+
+            // Add collapsible functionality
             const coll = document.getElementsByClassName("collapsible");
             for (let i = 0; i < coll.length; i++) {
-                const element = coll[i];
-                
-                // Touch events
-                element.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
+                coll[i].addEventListener("click", function() {
                     this.classList.toggle("active");
                     const content = this.nextElementSibling;
                     if (content.style.maxHeight) {
@@ -297,81 +315,6 @@
                     } else {
                         content.style.maxHeight = content.scrollHeight + "px";
                         content.classList.add("active");
-                    }
-                });
-                
-                // Click events for non-touch devices
-                element.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    this.classList.toggle("active");
-                    const content = this.nextElementSibling;
-                    if (content.style.maxHeight) {
-                        content.style.maxHeight = null;
-                        content.classList.remove("active");
-                    } else {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        content.classList.add("active");
-                    }
-                });
-            }
-            
-            // Add start button listener with improved touch handling
-            const startButton = document.getElementById('start-button');
-            if (!startButton) {
-                console.error('Start button not found');
-                return;
-            }
-            
-            console.log('Start button found, adding click listener');
-            
-            // Remove any existing listeners
-            const newStartButton = startButton.cloneNode(true);
-            startButton.parentNode.replaceChild(newStartButton, startButton);
-            
-            // Add new listeners with debug logging
-            newStartButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Start button touched');
-                if (!gameInstance) {
-                    console.error('Game instance is null');
-                    return;
-                }
-                console.log('Starting game from touch event');
-                gameInstance.startGame();
-            }, { passive: false });
-            
-            newStartButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Start button clicked');
-                if (!gameInstance) {
-                    console.error('Game instance is null');
-                    return;
-                }
-                console.log('Starting game from click event');
-                gameInstance.startGame();
-            });
-            
-            // Add wear hat button listener with improved touch handling
-            const hatButton = document.querySelector('.unlockable button');
-            if (hatButton) {
-                const newHatButton = hatButton.cloneNode(true);
-                hatButton.parentNode.replaceChild(newHatButton, hatButton);
-                
-                newHatButton.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (gameInstance) {
-                        gameInstance.wearHat();
-                    }
-                }, { passive: false });
-                
-                newHatButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (gameInstance) {
-                        gameInstance.wearHat();
                     }
                 });
             }
