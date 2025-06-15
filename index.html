@@ -638,7 +638,8 @@
                     hat.add(top);
 
                     // Position hat on otter's head
-                    hat.position.set(0, 0.8, 0);
+                    hat.position.set(0, 0.5, -0.7);  // Adjusted to sit properly on head
+                    hat.rotation.y = Math.PI / 2;  // Match head rotation
                     this.otter.add(hat);
                 }
             }
@@ -1041,38 +1042,34 @@
                 rightEye.rotation.y = Math.PI / 2;
                 this.otter.add(rightEye);
 
-                // Create ears (half spheres)
-                const earGeometry = new THREE.SphereGeometry(0.08, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);  // Half sphere
+                // Create ears (more otter-like)
+                const earGeometry = new THREE.SphereGeometry(0.06, 32, 32);  // Smaller, full sphere for ears
                 const earMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.15, 0.4, -0.7);
+                leftEar.position.set(0.12, 0.35, -0.65);  // Adjusted position to sit better on head
                 leftEar.rotation.y = Math.PI / 2;
-                leftEar.rotation.x = Math.PI;  // Flip to point upward
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.15, 0.4, -0.7);
+                rightEar.position.set(-0.12, 0.35, -0.65);  // Adjusted position to sit better on head
                 rightEar.rotation.y = Math.PI / 2;
-                rightEar.rotation.x = Math.PI;  // Flip to point upward
                 this.otter.add(rightEar);
 
-                // Create tail (fixed direction)
-                const tailGeometry = new THREE.CircleGeometry(0.3, 32);
+                // Create tail (more otter-like)
+                const tailGeometry = new THREE.CapsuleGeometry(0.15, 0.6, 16, 32);  // Changed to capsule for more rounded tail
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
-                    metalness: 0.2,
-                    side: THREE.DoubleSide
+                    metalness: 0.2
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.position.set(0, 0.3, 0.7);
-                tail.rotation.x = Math.PI / 2;  // Horizontal
+                tail.position.set(0, 0.1, 0.7);  // Adjusted position
                 tail.rotation.y = Math.PI / 2;  // Match body rotation
-                tail.rotation.z = -Math.PI / 4;  // Angle tail downward
-                tail.scale.set(1, 0.2, 1);
+                tail.rotation.z = Math.PI / 6;  // Slight upward angle
+                tail.scale.set(1, 0.4, 1);  // Flattened slightly
                 tail.castShadow = true;
                 this.otter.add(tail);
 
