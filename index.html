@@ -1791,7 +1791,7 @@
 
                     case 'shark':
                         // Create shark group
-                        obstacle = new THREE.Group();
+                        const sharkGroup = new THREE.Group();
                         
                         // Create shark body (more streamlined and realistic)
                         const sharkBodyGeometry = new THREE.CapsuleGeometry(0.25, 1.2, 32, 32);
@@ -1805,7 +1805,7 @@
                         sharkBody.rotation.x = Math.PI / 2;
                         sharkBody.rotation.z = -Math.PI / 2;
                         sharkBody.scale.set(1, 0.8, 1.2);  // More streamlined shape
-                        obstacle.add(sharkBody);
+                        sharkGroup.add(sharkBody);
 
                         // Create shark head (more pointed and realistic)
                         const sharkHeadGeometry = new THREE.ConeGeometry(0.25, 0.6, 32);
@@ -1813,7 +1813,7 @@
                         sharkHead.position.set(-0.9, 0, 0);
                         sharkHead.rotation.z = Math.PI / 2;
                         sharkHead.scale.set(1, 0.8, 1.2);
-                        obstacle.add(sharkHead);
+                        sharkGroup.add(sharkHead);
 
                         // Create dorsal fin (more realistic shape)
                         const dorsalFinGeometry = new THREE.Shape();
@@ -1835,7 +1835,7 @@
                         );
                         dorsalFin.position.set(0, 0.3, 0);
                         dorsalFin.rotation.x = Math.PI / 2;
-                        obstacle.add(dorsalFin);
+                        sharkGroup.add(dorsalFin);
 
                         // Create pectoral fins (more natural shape)
                         const pectoralFinGeometry = new THREE.Shape();
@@ -1852,7 +1852,7 @@
                         leftPectoral.position.set(0, 0, 0.3);
                         leftPectoral.rotation.z = Math.PI / 2;
                         leftPectoral.rotation.y = Math.PI / 4;
-                        obstacle.add(leftPectoral);
+                        sharkGroup.add(leftPectoral);
                         
                         // Right pectoral fin
                         const rightPectoral = new THREE.Mesh(
@@ -1862,7 +1862,7 @@
                         rightPectoral.position.set(0, 0, -0.3);
                         rightPectoral.rotation.z = -Math.PI / 2;
                         rightPectoral.rotation.y = -Math.PI / 4;
-                        obstacle.add(rightPectoral);
+                        sharkGroup.add(rightPectoral);
 
                         // Create tail fin (more dynamic shape)
                         const tailFinGeometry = new THREE.Shape();
@@ -1876,7 +1876,7 @@
                         );
                         tailFin.position.set(0.7, 0, 0);
                         tailFin.rotation.z = Math.PI / 2;
-                        obstacle.add(tailFin);
+                        sharkGroup.add(tailFin);
 
                         // Create eyes (more menacing)
                         const eyeGeometry = new THREE.SphereGeometry(0.06, 16, 16);
@@ -1889,10 +1889,10 @@
                         });
                         const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                         leftEye.position.set(-0.8, 0.1, 0.15);
-                        obstacle.add(leftEye);
+                        sharkGroup.add(leftEye);
                         const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                         rightEye.position.set(-0.8, 0.1, -0.15);
-                        obstacle.add(rightEye);
+                        sharkGroup.add(rightEye);
 
                         // Create gills (more detailed)
                         const gillGeometry = new THREE.BoxGeometry(0.05, 0.15, 0.15);
@@ -1905,12 +1905,12 @@
                             const gill = new THREE.Mesh(gillGeometry, gillMaterial);
                             gill.position.set(-0.4 + i * 0.1, 0, 0.2);
                             gill.rotation.y = Math.PI / 4;
-                            obstacle.add(gill);
+                            sharkGroup.add(gill);
                             
                             const gill2 = new THREE.Mesh(gillGeometry, gillMaterial);
                             gill2.position.set(-0.4 + i * 0.1, 0, -0.2);
                             gill2.rotation.y = -Math.PI / 4;
-                            obstacle.add(gill2);
+                            sharkGroup.add(gill2);
                         }
 
                         // Add teeth (more menacing)
@@ -1924,20 +1924,45 @@
                             const tooth = new THREE.Mesh(toothGeometry, toothMaterial);
                             tooth.position.set(-1.0, 0, 0.1 + i * 0.1);
                             tooth.rotation.z = -Math.PI / 2;
-                            obstacle.add(tooth);
+                            sharkGroup.add(tooth);
                             
                             const tooth2 = new THREE.Mesh(toothGeometry, toothMaterial);
                             tooth2.position.set(-1.0, 0, -0.1 - i * 0.1);
                             tooth2.rotation.z = -Math.PI / 2;
-                            obstacle.add(tooth2);
+                            sharkGroup.add(tooth2);
                         }
 
                         // Add swimming animation
-                        obstacle.userData.rotationSpeed = {
+                        sharkGroup.userData.rotationSpeed = {
                             x: 0,
                             y: 0.02,
                             z: 0
                         };
+
+                        // Set the obstacle to the shark group
+                        obstacle = sharkGroup;
+                        obstacle.position.x = (Math.random() - 0.5) * 12;
+                        obstacle.position.z = -30;
+                        obstacle.position.y = 0.2;  // Raised position for better visibility
+                        obstacle.scale.set(1.5, 1.5, 1.5);  // Increased scale for better visibility
+                        obstacle.castShadow = true;
+                        obstacle.receiveShadow = true;
+
+                        // Set shark type in userData
+                        obstacle.userData.type = 'shark';
+
+                        // Add red glow plane under the shark
+                        const glowGeometry = new THREE.CircleGeometry(0.8, 32);
+                        const glowMaterial = new THREE.MeshBasicMaterial({
+                            color: 0xFF0000,
+                            transparent: true,
+                            opacity: 0.3,
+                            side: THREE.DoubleSide
+                        });
+                        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                        glow.rotation.x = -Math.PI / 2;
+                        glow.position.y = -0.1;
+                        obstacle.add(glow);
                         break;
 
                     case 'debris':
