@@ -596,7 +596,7 @@
                     hat.userData.isHat = true;
 
                     // Create hat brim (torus)
-                    const brimGeometry = new THREE.TorusGeometry(0.25, 0.05, 16, 32);
+                    const brimGeometry = new THREE.TorusGeometry(0.35, 0.05, 16, 32);
                     const brimMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
@@ -606,19 +606,19 @@
                     brim.rotation.x = Math.PI / 2;
                     hat.add(brim);
 
-                    // Create hat top (cylinder)
-                    const topGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32);
+                    // Create hat top (cylinder with larger radius)
+                    const topGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.5, 32);
                     const topMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
                         metalness: 0.2
                     });
                     const top = new THREE.Mesh(topGeometry, topMaterial);
-                    top.position.y = 0.25;  // Position above brim
+                    top.position.y = 0.3;  // Position above brim
                     hat.add(top);
 
                     // Position hat on otter's head
-                    hat.position.set(0, 0.3, -0.7);  // Adjusted to sit properly on head
+                    hat.position.set(0, 0.4, -0.7);  // Adjusted to sit properly on head
                     hat.rotation.y = Math.PI / 2;  // Match head rotation
                     this.otter.add(hat);
                 }
@@ -632,16 +632,45 @@
                         this.otter.remove(existingCrown);
                     }
 
-                    // Add crown to otter model
-                    const crownGeometry = new THREE.ConeGeometry(0.3, 0.4, 8);
-                    const crownMaterial = new THREE.MeshStandardMaterial({
+                    // Create crown group
+                    const crown = new THREE.Group();
+                    crown.userData.isCrown = true;
+
+                    // Create base ring (torus)
+                    const baseGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 32);
+                    const baseMaterial = new THREE.MeshStandardMaterial({
                         color: 0xFFD700,
                         roughness: 0.3,
                         metalness: 0.8
                     });
-                    const crown = new THREE.Mesh(crownGeometry, crownMaterial);
-                    crown.position.set(0, 0.8, 0);
-                    crown.userData.isCrown = true;
+                    const base = new THREE.Mesh(baseGeometry, baseMaterial);
+                    base.rotation.x = Math.PI / 2;
+                    crown.add(base);
+
+                    // Create three triangular peaks
+                    const peakGeometry = new THREE.ConeGeometry(0.15, 0.3, 3);
+                    const peakMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xFFD700,
+                        roughness: 0.3,
+                        metalness: 0.8
+                    });
+
+                    // Add three peaks at different angles
+                    for (let i = 0; i < 3; i++) {
+                        const peak = new THREE.Mesh(peakGeometry, peakMaterial);
+                        const angle = (i / 3) * Math.PI * 2;
+                        peak.position.set(
+                            Math.cos(angle) * 0.2,
+                            0.2,
+                            Math.sin(angle) * 0.2
+                        );
+                        peak.rotation.y = angle;
+                        crown.add(peak);
+                    }
+
+                    // Position crown on otter's head
+                    crown.position.set(0, 0.4, -0.7);
+                    crown.rotation.y = Math.PI / 2;
                     this.otter.add(crown);
                 }
             }
@@ -1114,6 +1143,16 @@
                         if (this.score >= 300 && !this.unlockedItems.includes('crown')) {
                             this.unlockedItems.push('crown');
                             localStorage.setItem('unlockedItems', JSON.stringify(this.unlockedItems));
+                            
+                            // Update the crown button in the UI
+                            const crownButton = document.querySelector('.unlockable:nth-child(2) button');
+                            if (crownButton) {
+                                crownButton.disabled = false;
+                                crownButton.textContent = 'Wear';
+                                crownButton.parentElement.classList.remove('locked');
+                                crownButton.parentElement.querySelector('span:nth-child(2)').textContent = 'Unlocked!';
+                            }
+                            
                             this.wearCrown();
                         }
                     }
