@@ -898,15 +898,17 @@
                 this.otter.add(rightEar);
 
                 // Create tail
-                const tailGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.3);  // Flat box for tail
+                const tailGeometry = new THREE.CircleGeometry(0.4, 32);  // Flat oval shape
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
-                    metalness: 0.2
+                    metalness: 0.2,
+                    side: THREE.DoubleSide  // Make visible from both sides
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
                 tail.position.set(0, 0.3, 0.9);
                 tail.rotation.x = Math.PI / 2;  // Rotate to make it horizontal
+                tail.scale.set(1, 0.3, 1);  // Stretch to make it oval
                 tail.castShadow = true;
                 this.otter.add(tail);
 
