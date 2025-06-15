@@ -596,7 +596,7 @@
                     hat.userData.isHat = true;
 
                     // Create hat brim (torus)
-                    const brimGeometry = new THREE.TorusGeometry(0.35, 0.05, 16, 32);
+                    const brimGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 32);
                     const brimMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
@@ -607,7 +607,7 @@
                     hat.add(brim);
 
                     // Create hat top (cylinder with larger radius)
-                    const topGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.5, 32);
+                    const topGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.5, 32);
                     const topMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
