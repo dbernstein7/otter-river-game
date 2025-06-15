@@ -1581,7 +1581,7 @@
                 let collisionRadius;
                 let isCollision = false;
                 
-                if (obstacle.geometry.type === 'CylinderGeometry') {
+                if (obstacle.geometry && obstacle.geometry.type === 'CylinderGeometry') {
                     // For wooden poles, check both horizontal distance and vertical position
                     const horizontalDistance = Math.sqrt(
                         Math.pow(otter.position.x - obstacle.position.x, 2) +
@@ -1592,8 +1592,12 @@
                     
                     // Check if otter is within the pole's height range and horizontal distance
                     isCollision = horizontalDistance < collisionRadius && verticalDistance < 1.0;
+                } else if (obstacle.type === 'Group' && obstacle.userData.type === 'shark') {
+                    // For sharks, use a larger collision radius due to their size
+                    collisionRadius = 0.8;
+                    isCollision = distance < collisionRadius;
                 } else {
-                    // For rocks, use simple distance check
+                    // For other obstacles, use simple distance check
                     collisionRadius = 0.5;
                     isCollision = distance < collisionRadius;
                 }
@@ -1916,17 +1920,24 @@
                             roughness: 0.3,
                             metalness: 0.8
                         });
-                        for (let i = 0; i < 6; i++) {
+                        for (let i = 0; i < 3; i++) {
                             const tooth = new THREE.Mesh(toothGeometry, toothMaterial);
-                            tooth.position.set(-1.1, 0, 0.1 - i * 0.04);
-                            tooth.rotation.x = Math.PI / 2;
+                            tooth.position.set(-1.0, 0, 0.1 + i * 0.1);
+                            tooth.rotation.z = -Math.PI / 2;
                             obstacle.add(tooth);
                             
                             const tooth2 = new THREE.Mesh(toothGeometry, toothMaterial);
-                            tooth2.position.set(-1.1, 0, -0.1 + i * 0.04);
-                            tooth2.rotation.x = Math.PI / 2;
+                            tooth2.position.set(-1.0, 0, -0.1 - i * 0.1);
+                            tooth2.rotation.z = -Math.PI / 2;
                             obstacle.add(tooth2);
                         }
+
+                        // Add swimming animation
+                        obstacle.userData.rotationSpeed = {
+                            x: 0,
+                            y: 0.02,
+                            z: 0
+                        };
                         break;
 
                     case 'debris':
