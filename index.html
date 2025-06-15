@@ -972,7 +972,7 @@
                     metalness: 0.2
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.position.y = 0.3;
+                body.position.y = 0.1;  // Lowered from 0.3 to 0.1
                 body.rotation.y = Math.PI / 2;
                 body.scale.set(1.2, 0.3, 0.8);
                 body.castShadow = true;
@@ -986,7 +986,7 @@
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.4, -0.7);
+                head.position.set(0, 0.2, -0.7);  // Lowered from 0.4 to 0.2
                 head.rotation.y = Math.PI / 2;
                 head.scale.set(1, 0.6, 0.8);
                 head.castShadow = true;
@@ -1000,7 +1000,7 @@
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.position.set(0, 0.4, -0.9);
+                snout.position.set(0, 0.2, -0.9);  // Lowered from 0.4 to 0.2
                 snout.rotation.x = Math.PI / 2;
                 snout.rotation.y = Math.PI / 2;
                 snout.scale.set(1, 0.6, 0.8);
@@ -1015,11 +1015,11 @@
                     metalness: 0.8
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(0.12, 0.5, -0.8);
+                leftEye.position.set(0.12, 0.3, -0.8);  // Lowered from 0.5 to 0.3
                 leftEye.rotation.y = Math.PI / 2;
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(-0.12, 0.5, -0.8);
+                rightEye.position.set(-0.12, 0.3, -0.8);  // Lowered from 0.5 to 0.3
                 rightEye.rotation.y = Math.PI / 2;
                 this.otter.add(rightEye);
 
@@ -1031,11 +1031,11 @@
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.15, 0.6, -0.7);
+                leftEar.position.set(0.15, 0.4, -0.7);  // Lowered from 0.6 to 0.4
                 leftEar.rotation.y = Math.PI / 2;
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.15, 0.6, -0.7);
+                rightEar.position.set(-0.15, 0.4, -0.7);  // Lowered from 0.6 to 0.4
                 rightEar.rotation.y = Math.PI / 2;
                 this.otter.add(rightEar);
 
@@ -1153,6 +1153,12 @@
                     if (this.lives <= 0) {
                         this.gameOver = true;
                         this.showGameOver();
+                    }
+                    // Remove the obstacle after collision
+                    const index = this.obstacles.indexOf(obstacle);
+                    if (index > -1) {
+                        this.scene.remove(obstacle);
+                        this.obstacles.splice(index, 1);
                     }
                     return true;
                 }
