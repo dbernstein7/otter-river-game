@@ -734,7 +734,7 @@
                     collectible = new THREE.Group();
                     
                     // Create fish body (more streamlined and realistic)
-                    const bodyGeometry = new THREE.CapsuleGeometry(0.15, 0.8, 16, 32);
+                    const bodyGeometry = new THREE.CapsuleGeometry(0.15, 0.3, 16, 32); // Decreased length from 0.8 to 0.3
                     const bodyMaterial = new THREE.MeshStandardMaterial({
                         color: selectedType.color,
                         roughness: 0.6,
