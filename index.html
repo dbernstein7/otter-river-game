@@ -611,16 +611,34 @@
                         this.otter.remove(existingHat);
                     }
 
-                    // Add hat to otter model
-                    const hatGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.2, 8);
-                    const hatMaterial = new THREE.MeshStandardMaterial({
+                    // Create hat group
+                    const hat = new THREE.Group();
+                    hat.userData.isHat = true;
+
+                    // Create hat brim (torus)
+                    const brimGeometry = new THREE.TorusGeometry(0.25, 0.05, 16, 32);
+                    const brimMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.7,
                         metalness: 0.2
                     });
-                    const hat = new THREE.Mesh(hatGeometry, hatMaterial);
+                    const brim = new THREE.Mesh(brimGeometry, brimMaterial);
+                    brim.rotation.x = Math.PI / 2;
+                    hat.add(brim);
+
+                    // Create hat top (cylinder)
+                    const topGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32);
+                    const topMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x000000,
+                        roughness: 0.7,
+                        metalness: 0.2
+                    });
+                    const top = new THREE.Mesh(topGeometry, topMaterial);
+                    top.position.y = 0.25;  // Position above brim
+                    hat.add(top);
+
+                    // Position hat on otter's head
                     hat.position.set(0, 0.8, 0);
-                    hat.userData.isHat = true;
                     this.otter.add(hat);
                 }
             }
@@ -1023,20 +1041,22 @@
                 rightEye.rotation.y = Math.PI / 2;
                 this.otter.add(rightEye);
 
-                // Create ears (smaller and rounder)
-                const earGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                // Create ears (half spheres)
+                const earGeometry = new THREE.SphereGeometry(0.08, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);  // Half sphere
                 const earMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.15, 0.4, -0.7);  // Lowered from 0.6 to 0.4
+                leftEar.position.set(0.15, 0.4, -0.7);
                 leftEar.rotation.y = Math.PI / 2;
+                leftEar.rotation.x = Math.PI;  // Flip to point upward
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.15, 0.4, -0.7);  // Lowered from 0.6 to 0.4
+                rightEar.position.set(-0.15, 0.4, -0.7);
                 rightEar.rotation.y = Math.PI / 2;
+                rightEar.rotation.x = Math.PI;  // Flip to point upward
                 this.otter.add(rightEar);
 
                 // Create tail (fixed direction)
