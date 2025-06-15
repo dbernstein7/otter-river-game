@@ -21,6 +21,7 @@
             position: fixed;
             touch-action: none;
             font-family: Arial, sans-serif;
+            font-size: 14px;
         }
         #game-container {
             width: 100%;
@@ -30,10 +31,10 @@
         }
         #score {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
             color: white;
-            font-size: 24px;
+            font-size: 18px;
             z-index: 1000;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
@@ -46,56 +47,57 @@
             background: rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             color: white;
-            font-size: 24px;
             text-align: center;
             z-index: 2000;
-            padding: 20px;
+            padding: 10px;
             overflow-y: auto;
         }
         #home-screen h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            margin-bottom: 10px;
             color: #4CAF50;
         }
         #home-screen h2 {
-            font-size: 28px;
-            margin: 15px 0;
+            font-size: 18px;
+            margin: 8px 0;
             color: #2196F3;
         }
         #home-screen p {
-            margin: 10px 0;
-            font-size: 20px;
+            margin: 5px 0;
+            font-size: 14px;
         }
         .section {
             background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px 0;
-            width: 90%;
-            max-width: 600px;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            width: 95%;
+            max-width: 400px;
         }
         .unlockable {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 10px 0;
-            padding: 10px;
+            margin: 5px 0;
+            padding: 5px;
             background: rgba(255,255,255,0.05);
-            border-radius: 5px;
+            border-radius: 4px;
+            font-size: 12px;
         }
         .unlockable.locked {
             opacity: 0.5;
         }
         .unlockable button {
-            padding: 5px 10px;
+            padding: 3px 8px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             background: #4CAF50;
             color: white;
             cursor: pointer;
+            font-size: 12px;
         }
         .unlockable button:disabled {
             background: #666;
@@ -104,23 +106,24 @@
         .points-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 10px 0;
+            gap: 5px;
+            margin: 5px 0;
+            font-size: 12px;
         }
         .point-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
         #start-button {
-            padding: 15px 30px;
-            font-size: 24px;
+            padding: 10px 20px;
+            font-size: 18px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             transition: transform 0.2s;
         }
         #start-button:hover {
@@ -128,27 +131,56 @@
         }
         #controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 10px;
             left: 0;
             width: 100%;
-            height: 100px;
+            height: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
         #left-control, #right-control {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            margin: 0 20px;
+            margin: 0 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             user-select: none;
+        }
+        .collapsible {
+            width: 100%;
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            margin: 2px 0;
+            color: white;
+            font-size: 14px;
+        }
+        .collapsible:after {
+            content: '▼';
+            float: right;
+            margin-left: 5px;
+        }
+        .collapsible.active:after {
+            content: '▲';
+        }
+        .content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+        }
+        .content.active {
+            max-height: 500px;
         }
     </style>
 </head>
@@ -159,45 +191,53 @@
             <h1>Otter River Adventure</h1>
             <p>A fun 3D game where you control an otter collecting fish and avoiding obstacles in a river!</p>
             
-            <div class="section">
-                <h2>How to Play</h2>
-                <p>Arrow Keys to move</p>
-                <p>🎯 Collect fish and clams while avoiding obstacles</p>
-                <p>⚡ Game speeds up as you level up</p>
-                <p>✨ Rarer fish appear at higher levels</p>
-            </div>
-
-            <div class="section">
-                <h2>Point Distribution</h2>
-                <div class="points-grid">
-                    <div class="point-item">🐟 Normal Fish: 1 point</div>
-                    <div class="point-item">🌈 Rainbow Fish: 3 points</div>
-                    <div class="point-item">🌟 Golden Fish: 5 points</div>
-                    <div class="point-item">💎 Emerald Fish: 7 points</div>
-                    <div class="point-item">💠 Diamond Fish: 10 points</div>
-                    <div class="point-item">🦪 Clam: 15 points</div>
-                    <div class="point-item">🐠 Seahorse: 8 points</div>
-                    <div class="point-item">🐙 Jellyfish: 12 points</div>
-                    <div class="point-item">⭐ Starfish: 6 points</div>
+            <button class="collapsible">How to Play</button>
+            <div class="content">
+                <div class="section">
+                    <p>Arrow Keys to move</p>
+                    <p>🎯 Collect fish and clams while avoiding obstacles</p>
+                    <p>⚡ Game speeds up as you level up</p>
+                    <p>✨ Rarer fish appear at higher levels</p>
                 </div>
             </div>
 
-            <div class="section">
-                <h2>Top Scores</h2>
-                <div id="top-scores"></div>
+            <button class="collapsible">Point Distribution</button>
+            <div class="content">
+                <div class="section">
+                    <div class="points-grid">
+                        <div class="point-item">🐟 Normal Fish: 1 point</div>
+                        <div class="point-item">🌈 Rainbow Fish: 3 points</div>
+                        <div class="point-item">🌟 Golden Fish: 5 points</div>
+                        <div class="point-item">💎 Emerald Fish: 7 points</div>
+                        <div class="point-item">💠 Diamond Fish: 10 points</div>
+                        <div class="point-item">🦪 Clam: 15 points</div>
+                        <div class="point-item">🐠 Seahorse: 8 points</div>
+                        <div class="point-item">🐙 Jellyfish: 12 points</div>
+                        <div class="point-item">⭐ Starfish: 6 points</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="section">
-                <h2>Unlockables</h2>
-                <div class="unlockable">
-                    <span>🎩 Top Hat</span>
-                    <span>Unlocked!</span>
-                    <button onclick="wearHat()">Wear Top Hat</button>
+            <button class="collapsible">Top Scores</button>
+            <div class="content">
+                <div class="section">
+                    <div id="top-scores"></div>
                 </div>
-                <div class="unlockable locked">
-                    <span>👑 Crown</span>
-                    <span>Locked (Score 300+ in a game)</span>
-                    <button disabled>Wear Crown</button>
+            </div>
+
+            <button class="collapsible">Unlockables</button>
+            <div class="content">
+                <div class="section">
+                    <div class="unlockable">
+                        <span>🎩 Top Hat</span>
+                        <span>Unlocked!</span>
+                        <button onclick="wearHat()">Wear</button>
+                    </div>
+                    <div class="unlockable locked">
+                        <span>👑 Crown</span>
+                        <span>Locked (300+ points)</span>
+                        <button disabled>Wear</button>
+                    </div>
                 </div>
             </div>
 
@@ -214,6 +254,24 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
+        // Add collapsible functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const coll = document.getElementsByClassName("collapsible");
+            for (let i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    const content = this.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        content.classList.remove("active");
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        content.classList.add("active");
+                    }
+                });
+            }
+        });
+
         // Game code
         class OtterRiverGame {
             constructor(container) {
