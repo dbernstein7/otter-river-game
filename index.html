@@ -935,36 +935,36 @@
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.3;
                 body.rotation.y = Math.PI / 2;  // Rotate 90 degrees
-                body.scale.set(1.2, 0.5, 0.8);  // Make body more oval-shaped
+                body.scale.set(1.2, 0.3, 0.8);  // Make body flatter (reduced y scale from 0.5 to 0.3)
                 body.castShadow = true;
                 this.otter.add(body);
 
                 // Create head
-                const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);  // Smaller head
+                const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);  // Keep head size the same
                 const headMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,  // Lighter brown (Chocolate)
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.4, -0.7);  // Lowered head position to match flattened body
+                head.position.set(0, 0.4, -0.7);  // Keep head position the same
                 head.rotation.y = Math.PI / 2;  // Match body rotation
-                head.scale.set(1, 0.6, 0.8);  // Make head slightly oval to match body
+                head.scale.set(1, 0.6, 0.8);  // Keep head scale the same
                 head.castShadow = true;
                 this.otter.add(head);
 
                 // Create snout
-                const snoutGeometry = new THREE.ConeGeometry(0.12, 0.25, 8);  // Smaller snout
+                const snoutGeometry = new THREE.ConeGeometry(0.12, 0.25, 8);  // Keep snout size the same
                 const snoutMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,  // Lighter brown (Chocolate)
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.position.set(0, 0.4, -0.9);  // Lowered snout position
+                snout.position.set(0, 0.4, -0.9);  // Keep snout position the same
                 snout.rotation.x = Math.PI / 2;
                 snout.rotation.y = Math.PI / 2;  // Match body rotation
-                snout.scale.set(1, 0.6, 0.8);  // Make snout slightly oval to match head
+                snout.scale.set(1, 0.6, 0.8);  // Keep snout scale the same
                 snout.castShadow = true;
                 this.otter.add(snout);
 
