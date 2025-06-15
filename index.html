@@ -678,8 +678,8 @@
                     // Create fish group
                     collectible = new THREE.Group();
                     
-                    // Create fish body
-                    const bodyGeometry = new THREE.CapsuleGeometry(0.2, 0.6, 8, 16);
+                    // Create fish body (more streamlined)
+                    const bodyGeometry = new THREE.CapsuleGeometry(0.15, 0.8, 8, 16);
                     const bodyMaterial = new THREE.MeshStandardMaterial({
                         color: selectedType.color,
                         roughness: 0.7,
@@ -692,86 +692,98 @@
                     body.rotation.z = Math.PI / 2;
                     collectible.add(body);
 
-                    // Create tail fin
-                    const tailGeometry = new THREE.ConeGeometry(0.2, 0.4, 4);
-                    const tailMaterial = new THREE.MeshStandardMaterial({
-                        color: selectedType.color,
-                        roughness: 0.7,
-                        metalness: 0.3,
-                        emissive: selectedType.color,
-                        emissiveIntensity: 0.2
-                    });
-                    const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                    tail.position.set(0.4, 0, 0);
-                    tail.rotation.z = -Math.PI / 2;
-                    tail.scale.set(1, 0.5, 1);
-                    collectible.add(tail);
+                    // Create tail fin (more fish-like)
+                    const tailGeometry = new THREE.Shape();
+                    tailGeometry.moveTo(0, 0);
+                    tailGeometry.lineTo(0.4, 0.2);
+                    tailGeometry.lineTo(0.4, -0.2);
+                    tailGeometry.lineTo(0, 0);
+                    const tailExtrudeSettings = {
+                        steps: 1,
+                        depth: 0.05,
+                        bevelEnabled: true,
+                        bevelThickness: 0.02,
+                        bevelSize: 0.02,
+                        bevelSegments: 3
+                    };
+                    const tailMesh = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(tailGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
+                    tailMesh.position.set(0.4, 0, 0);
+                    tailMesh.rotation.z = -Math.PI / 2;
+                    collectible.add(tailMesh);
 
                     // Create dorsal fin (top)
-                    const dorsalGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
-                    const dorsalMaterial = new THREE.MeshStandardMaterial({
-                        color: selectedType.color,
-                        roughness: 0.7,
-                        metalness: 0.3,
-                        emissive: selectedType.color,
-                        emissiveIntensity: 0.2
-                    });
-                    const dorsal = new THREE.Mesh(dorsalGeometry, dorsalMaterial);
-                    dorsal.position.set(0, 0.2, 0);
-                    dorsal.rotation.x = Math.PI / 2;
-                    dorsal.scale.set(1, 0.5, 1);
-                    collectible.add(dorsal);
+                    const dorsalGeometry = new THREE.Shape();
+                    dorsalGeometry.moveTo(0, 0);
+                    dorsalGeometry.lineTo(0.2, 0.3);
+                    dorsalGeometry.lineTo(0.4, 0);
+                    dorsalGeometry.lineTo(0, 0);
+                    const dorsalMesh = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(dorsalGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
+                    dorsalMesh.position.set(0, 0.2, 0);
+                    dorsalMesh.rotation.x = Math.PI / 2;
+                    collectible.add(dorsalMesh);
 
                     // Create pectoral fins (sides)
-                    const pectoralGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
-                    const pectoralMaterial = new THREE.MeshStandardMaterial({
-                        color: selectedType.color,
-                        roughness: 0.7,
-                        metalness: 0.3,
-                        emissive: selectedType.color,
-                        emissiveIntensity: 0.2
-                    });
+                    const pectoralGeometry = new THREE.Shape();
+                    pectoralGeometry.moveTo(0, 0);
+                    pectoralGeometry.lineTo(0.2, 0.1);
+                    pectoralGeometry.lineTo(0.2, -0.1);
+                    pectoralGeometry.lineTo(0, 0);
                     
                     // Left pectoral fin
-                    const leftPectoral = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+                    const leftPectoral = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(pectoralGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
                     leftPectoral.position.set(0, 0, 0.2);
                     leftPectoral.rotation.z = Math.PI / 2;
                     leftPectoral.rotation.y = Math.PI / 4;
                     collectible.add(leftPectoral);
                     
                     // Right pectoral fin
-                    const rightPectoral = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+                    const rightPectoral = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(pectoralGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
                     rightPectoral.position.set(0, 0, -0.2);
                     rightPectoral.rotation.z = -Math.PI / 2;
                     rightPectoral.rotation.y = -Math.PI / 4;
                     collectible.add(rightPectoral);
 
                     // Create pelvic fins (bottom)
-                    const pelvicGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
-                    const pelvicMaterial = new THREE.MeshStandardMaterial({
-                        color: selectedType.color,
-                        roughness: 0.7,
-                        metalness: 0.3,
-                        emissive: selectedType.color,
-                        emissiveIntensity: 0.2
-                    });
+                    const pelvicGeometry = new THREE.Shape();
+                    pelvicGeometry.moveTo(0, 0);
+                    pelvicGeometry.lineTo(0.15, 0.1);
+                    pelvicGeometry.lineTo(0.15, -0.1);
+                    pelvicGeometry.lineTo(0, 0);
                     
                     // Left pelvic fin
-                    const leftPelvic = new THREE.Mesh(pelvicGeometry, pelvicMaterial);
+                    const leftPelvic = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(pelvicGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
                     leftPelvic.position.set(0, -0.2, 0.1);
                     leftPelvic.rotation.z = -Math.PI / 2;
                     leftPelvic.rotation.y = Math.PI / 4;
                     collectible.add(leftPelvic);
                     
                     // Right pelvic fin
-                    const rightPelvic = new THREE.Mesh(pelvicGeometry, pelvicMaterial);
+                    const rightPelvic = new THREE.Mesh(
+                        new THREE.ExtrudeGeometry(pelvicGeometry, tailExtrudeSettings),
+                        bodyMaterial
+                    );
                     rightPelvic.position.set(0, -0.2, -0.1);
                     rightPelvic.rotation.z = -Math.PI / 2;
                     rightPelvic.rotation.y = -Math.PI / 4;
                     collectible.add(rightPelvic);
 
-                    // Create eyes
-                    const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                    // Create small eyes
+                    const eyeGeometry = new THREE.SphereGeometry(0.03, 8, 8);
                     const eyeMaterial = new THREE.MeshStandardMaterial({
                         color: 0x000000,
                         roughness: 0.3,
@@ -1080,7 +1092,7 @@
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.SphereGeometry(0.4, 32, 32);  // Changed from CapsuleGeometry to SphereGeometry with more segments for smoother appearance
+                const bodyGeometry = new THREE.SphereGeometry(0.4, 32, 32);
                 const bodyMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
@@ -1089,12 +1101,12 @@
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.1;
                 body.rotation.y = Math.PI / 2;
-                body.scale.set(1.2, 0.8, 0.8);  // Adjusted scale to maintain similar proportions
+                body.scale.set(1.2, 0.8, 0.8);
                 body.castShadow = true;
                 this.otter.add(body);
 
                 // Create head
-                const headGeometry = new THREE.SphereGeometry(0.25, 32, 32);  // Increased segments for smoother appearance
+                const headGeometry = new THREE.SphereGeometry(0.25, 32, 32);
                 const headMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
@@ -1115,7 +1127,7 @@
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.position.set(0, 0.2, -0.9);  // Lowered from 0.4 to 0.2
+                snout.position.set(0, 0.2, -0.9);
                 snout.rotation.x = Math.PI / 2;
                 snout.rotation.y = Math.PI / 2;
                 snout.scale.set(1, 0.6, 0.8);
@@ -1130,72 +1142,71 @@
                     metalness: 0.8
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(0.12, 0.3, -0.8);  // Lowered from 0.5 to 0.3
+                leftEye.position.set(0.12, 0.3, -0.8);
                 leftEye.rotation.y = Math.PI / 2;
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(-0.12, 0.3, -0.8);  // Lowered from 0.5 to 0.3
+                rightEye.position.set(-0.12, 0.3, -0.8);
                 rightEye.rotation.y = Math.PI / 2;
                 this.otter.add(rightEye);
 
-                // Create ears (more otter-like)
-                const earGeometry = new THREE.SphereGeometry(0.06, 32, 32);  // Smaller, full sphere for ears
+                // Create ears
+                const earGeometry = new THREE.SphereGeometry(0.06, 32, 32);
                 const earMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.12, 0.35, -0.65);  // Adjusted position to sit better on head
+                leftEar.position.set(0.12, 0.35, -0.65);
                 leftEar.rotation.y = Math.PI / 2;
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.12, 0.35, -0.65);  // Adjusted position to sit better on head
+                rightEar.position.set(-0.12, 0.35, -0.65);
                 rightEar.rotation.y = Math.PI / 2;
                 this.otter.add(rightEar);
 
-                // Create tail (more otter-like)
-                const tailGeometry = new THREE.CapsuleGeometry(0.15, 0.6, 16, 32);  // Changed to capsule for more rounded tail
+                // Create flattened tail
+                const tailGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.6);
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.position.set(0, 0.1, 0.7);  // Adjusted position
-                tail.rotation.y = Math.PI / 2;  // Match body rotation
-                tail.rotation.z = Math.PI / 6;  // Slight upward angle
-                tail.scale.set(1, 0.4, 1);  // Flattened slightly
+                tail.position.set(0, 0.1, 0.7);
+                tail.rotation.y = Math.PI / 2;
+                tail.rotation.z = Math.PI / 6;
                 tail.castShadow = true;
                 this.otter.add(tail);
 
                 // Create legs (shorter)
-                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.2, 4, 8);  // Reduced leg length from 0.4 to 0.2
+                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.2, 4, 8);
                 const legMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(0.25, -0.1, -0.3);  // Lowered position
+                frontLeftLeg.position.set(0.25, -0.1, -0.3);
                 frontLeftLeg.rotation.y = Math.PI / 2;
                 frontLeftLeg.scale.set(1, 0.4, 1);
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(-0.25, -0.1, -0.3);  // Lowered position
+                frontRightLeg.position.set(-0.25, -0.1, -0.3);
                 frontRightLeg.rotation.y = Math.PI / 2;
                 frontRightLeg.scale.set(1, 0.4, 1);
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(0.25, -0.1, 0.3);  // Lowered position
+                backLeftLeg.position.set(0.25, -0.1, 0.3);
                 backLeftLeg.rotation.y = Math.PI / 2;
                 backLeftLeg.scale.set(1, 0.4, 1);
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(-0.25, -0.1, 0.3);  // Lowered position
+                backRightLeg.position.set(-0.25, -0.1, 0.3);
                 backRightLeg.rotation.y = Math.PI / 2;
                 backRightLeg.scale.set(1, 0.4, 1);
                 backRightLeg.castShadow = true;
