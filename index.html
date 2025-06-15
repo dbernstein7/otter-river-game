@@ -221,7 +221,7 @@
                 });
                 this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
                 this.ground.rotation.x = -Math.PI / 2;
-                this.ground.position.y = -0.5;
+                this.ground.position.y = 0;
                 this.ground.receiveShadow = true;
                 this.scene.add(this.ground);
 
@@ -230,6 +230,7 @@
                     const rock = this.createRock();
                     rock.position.x = (Math.random() - 0.5) * 30;
                     rock.position.z = -Math.random() * 90;
+                    rock.position.y = 0.5; // Raise rocks slightly above ground
                     this.scene.add(rock);
                 }
             }
@@ -290,6 +291,7 @@
                 this.river = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.river.rotation.x = -Math.PI / 2;
                 this.river.position.z = -50;
+                this.river.position.y = 0.01; // Slightly above ground to prevent z-fighting
                 this.river.receiveShadow = true;
                 this.scene.add(this.river);
 
@@ -306,7 +308,7 @@
                 this.water = new THREE.Mesh(waterGeometry, waterMaterial);
                 this.water.rotation.x = -Math.PI / 2;
                 this.water.position.z = -50;
-                this.water.position.y = 0.1;
+                this.water.position.y = 0.02; // Slightly above river
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
             }
