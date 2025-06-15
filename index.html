@@ -224,15 +224,6 @@
                 this.ground.position.y = 0;
                 this.ground.receiveShadow = true;
                 this.scene.add(this.ground);
-
-                // Add rocks
-                for (let i = 0; i < 15; i++) {
-                    const rock = this.createRock();
-                    rock.position.x = (Math.random() - 0.5) * 30;
-                    rock.position.z = -Math.random() * 90;
-                    rock.position.y = 0.5; // Raise rocks slightly above ground
-                    this.scene.add(rock);
-                }
             }
 
             createCloud() {
@@ -258,23 +249,6 @@
                 }
                 
                 return cloud;
-            }
-
-            createRock() {
-                const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 0.5 + 0.5);
-                const rockMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x808080,
-                    roughness: 0.9,
-                    metalness: 0.1
-                });
-                const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-                rock.rotation.set(
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI
-                );
-                rock.castShadow = true;
-                return rock;
             }
 
             createRiver() {
@@ -353,16 +327,56 @@
             }
 
             loadOtter() {
-                const geometry = new THREE.BoxGeometry(1, 1, 2);
-                const material = new THREE.MeshStandardMaterial({ 
+                // Create otter body
+                const bodyGeometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ 
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
-                this.otter = new THREE.Mesh(geometry, material);
+                this.otter = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                this.otter.rotation.x = Math.PI / 2;
                 this.otter.position.y = 0.5;
                 this.otter.castShadow = true;
                 this.otter.receiveShadow = true;
+
+                // Create otter head
+                const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+                const headMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x8B4513,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.set(0, 0.3, 0.8);
+                this.otter.add(head);
+
+                // Create otter tail
+                const tailGeometry = new THREE.ConeGeometry(0.3, 1, 8);
+                const tailMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x8B4513,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const tail = new THREE.Mesh(tailGeometry, tailMaterial);
+                tail.rotation.x = -Math.PI / 2;
+                tail.position.set(0, 0, -1);
+                this.otter.add(tail);
+
+                // Create otter ears
+                const earGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                const earMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x8B4513,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+                leftEar.position.set(-0.3, 0.5, 0.8);
+                this.otter.add(leftEar);
+                const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+                rightEar.position.set(0.3, 0.5, 0.8);
+                this.otter.add(rightEar);
+
                 this.scene.add(this.otter);
             }
 
@@ -380,13 +394,33 @@
             }
 
             spawnObstacle() {
-                const geometry = new THREE.BoxGeometry(1, 1, 1);
-                const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-                const obstacle = new THREE.Mesh(geometry, material);
+                // Randomly choose between rock and red box
+                const isRock = Math.random() < 0.7; // 70% chance of rock
+                
+                let obstacle;
+                if (isRock) {
+                    const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 0.5 + 0.5);
+                    const rockMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x808080,
+                        roughness: 0.9,
+                        metalness: 0.1
+                    });
+                    obstacle = new THREE.Mesh(rockGeometry, rockMaterial);
+                    obstacle.rotation.set(
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI
+                    );
+                } else {
+                    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+                    const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+                    obstacle = new THREE.Mesh(boxGeometry, boxMaterial);
+                }
                 
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
                 obstacle.position.y = 0.5;
+                obstacle.castShadow = true;
                 
                 this.scene.add(obstacle);
                 this.obstacles.push(obstacle);
