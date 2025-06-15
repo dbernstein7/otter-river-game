@@ -960,7 +960,7 @@
             loadOtter() {
                 // Create otter group
                 this.otter = new THREE.Group();
-                this.otter.position.y = -0.7;  // Lower otter position to be deeper in water
+                this.otter.position.y = -0.9;  // Lower otter position to be in blue water
                 this.otter.scale.set(0.8, 0.8, 0.8);
                 this.scene.add(this.otter);
 
@@ -1056,33 +1056,33 @@
                 tail.castShadow = true;
                 this.otter.add(tail);
 
-                // Create legs (adjusted for water position)
-                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);
+                // Create legs (shorter)
+                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.2, 4, 8);  // Reduced leg length from 0.4 to 0.2
                 const legMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(0.25, 0.0, -0.3);  // Lowered position
+                frontLeftLeg.position.set(0.25, -0.1, -0.3);  // Lowered position
                 frontLeftLeg.rotation.y = Math.PI / 2;
                 frontLeftLeg.scale.set(1, 0.4, 1);
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(-0.25, 0.0, -0.3);  // Lowered position
+                frontRightLeg.position.set(-0.25, -0.1, -0.3);  // Lowered position
                 frontRightLeg.rotation.y = Math.PI / 2;
                 frontRightLeg.scale.set(1, 0.4, 1);
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(0.25, 0.0, 0.3);  // Lowered position
+                backLeftLeg.position.set(0.25, -0.1, 0.3);  // Lowered position
                 backLeftLeg.rotation.y = Math.PI / 2;
                 backLeftLeg.scale.set(1, 0.4, 1);
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(-0.25, 0.0, 0.3);  // Lowered position
+                backRightLeg.position.set(-0.25, -0.1, 0.3);  // Lowered position
                 backRightLeg.rotation.y = Math.PI / 2;
                 backRightLeg.scale.set(1, 0.4, 1);
                 backRightLeg.castShadow = true;
