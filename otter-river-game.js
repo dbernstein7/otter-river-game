@@ -54,6 +54,9 @@ class OtterRiverGame {
         pointLight.position.set(0, 10, 0);
         this.scene.add(pointLight);
 
+        // Create environment
+        this.createEnvironment();
+
         // Create river
         this.createRiver();
 
@@ -202,12 +205,16 @@ class OtterRiverGame {
 
         // Animate water
         const time = Date.now() * 0.001;
-        const water = this.scene.getObjectByName('water');
-        if (water) {
-            water.geometry.vertices?.forEach((vertex, i) => {
-                vertex.z = Math.sin(time + i * 0.1) * 0.1;
-            });
-            water.geometry.verticesNeedUpdate = true;
+        if (this.water) {
+            const positions = this.water.geometry.attributes.position;
+            const vertex = new THREE.Vector3();
+            
+            for (let i = 0; i < positions.count; i++) {
+                vertex.fromBufferAttribute(positions, i);
+                vertex.y = Math.sin(time + vertex.x * 0.1 + vertex.z * 0.1) * 0.2;
+                positions.setY(i, vertex.y);
+            }
+            positions.needsUpdate = true;
         }
 
         this.updateParticles();
