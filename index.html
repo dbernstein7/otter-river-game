@@ -919,135 +919,88 @@
             }
 
             loadOtter() {
-                // Create a group to hold all parts of the otter
+                // Create otter group
                 this.otter = new THREE.Group();
-                this.otter.position.y = -0.3;
-                this.otter.scale.set(0.8, 0.8, 0.8);  // Make otter smaller
+                this.otter.position.y = -0.5;  // Lower otter position to be in water
+                this.otter.scale.set(0.8, 0.8, 0.8);
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 8, 16);  // Rounder body with more segments
+                const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 8, 16);
                 const bodyMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
+                    color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.3;
-                body.rotation.y = Math.PI / 2;  // Rotate 90 degrees
-                body.scale.set(1.2, 0.3, 0.8);  // Make body flatter (reduced y scale from 0.5 to 0.3)
+                body.rotation.y = Math.PI / 2;
+                body.scale.set(1.2, 0.3, 0.8);
                 body.castShadow = true;
                 this.otter.add(body);
 
-                // Create head
-                const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);  // Keep head size the same
-                const headMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.4, -0.7);  // Keep head position the same
-                head.rotation.y = Math.PI / 2;  // Match body rotation
-                head.scale.set(1, 0.6, 0.8);  // Keep head scale the same
-                head.castShadow = true;
-                this.otter.add(head);
-
-                // Create snout
-                const snoutGeometry = new THREE.ConeGeometry(0.12, 0.25, 8);  // Keep snout size the same
-                const snoutMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
-                    roughness: 0.7,
-                    metalness: 0.2
-                });
-                const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.position.set(0, 0.4, -0.9);  // Keep snout position the same
-                snout.rotation.x = Math.PI / 2;
-                snout.rotation.y = Math.PI / 2;  // Match body rotation
-                snout.scale.set(1, 0.6, 0.8);  // Keep snout scale the same
-                snout.castShadow = true;
-                this.otter.add(snout);
-
-                // Create eyes
-                const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);  // Smaller eyes
-                const eyeMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x000000,
-                    roughness: 0.3,
-                    metalness: 0.8
-                });
-                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(0.12, 0.5, -0.8);  // Lowered eye position
-                leftEye.rotation.y = Math.PI / 2;  // Match body rotation
-                this.otter.add(leftEye);
-                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(-0.12, 0.5, -0.8);  // Lowered eye position
-                rightEye.rotation.y = Math.PI / 2;  // Match body rotation
-                this.otter.add(rightEye);
-
-                // Create ears
-                const earGeometry = new THREE.SphereGeometry(0.1, 8, 8);  // Smaller ears
+                // Create ears (smaller and rounder)
+                const earGeometry = new THREE.SphereGeometry(0.08, 16, 16);  // Smaller, rounder ears
                 const earMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
+                    color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.2, 0.6, -0.7);  // Lowered ear position
-                leftEar.rotation.y = Math.PI / 2;  // Match body rotation
-                leftEar.scale.set(1, 0.6, 1);  // Flatten the ears slightly
+                leftEar.position.set(0.15, 0.6, -0.7);  // Adjusted position for smaller ears
+                leftEar.rotation.y = Math.PI / 2;
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.2, 0.6, -0.7);  // Lowered ear position
-                rightEar.rotation.y = Math.PI / 2;  // Match body rotation
-                rightEar.scale.set(1, 0.6, 1);  // Flatten the ears slightly
+                rightEar.position.set(-0.15, 0.6, -0.7);  // Adjusted position for smaller ears
+                rightEar.rotation.y = Math.PI / 2;
                 this.otter.add(rightEar);
 
-                // Create tail
-                const tailGeometry = new THREE.CircleGeometry(0.3, 32);  // Smaller oval shape
+                // Create tail (adjusted connection to body)
+                const tailGeometry = new THREE.CircleGeometry(0.3, 32);
                 const tailMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
+                    color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2,
                     side: THREE.DoubleSide
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.position.set(0, 0.3, 0.7);  // Moved closer to body
+                tail.position.set(0, 0.3, 0.7);  // Adjusted position to connect with body
                 tail.rotation.x = Math.PI / 2;  // Horizontal
                 tail.rotation.y = Math.PI / 2;  // Match body rotation
-                tail.rotation.z = 0;  // Remove z rotation to make tail visible from side
-                tail.scale.set(1, 0.2, 1);  // Make tail flatter
+                tail.rotation.z = Math.PI / 4;  // Slight angle for better connection
+                tail.scale.set(1, 0.2, 1);
                 tail.castShadow = true;
                 this.otter.add(tail);
 
-                // Create legs
-                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);  // Smaller legs
+                // Create legs (adjusted for water position)
+                const legGeometry = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);
                 const legMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xD2691E,  // Lighter brown (Chocolate)
+                    color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(0.25, 0.2, -0.3);
-                frontLeftLeg.rotation.y = Math.PI / 2;  // Match body rotation
-                frontLeftLeg.scale.set(1, 0.4, 1);  // Flatten the legs
+                frontLeftLeg.position.set(0.25, 0.1, -0.3);  // Lowered position
+                frontLeftLeg.rotation.y = Math.PI / 2;
+                frontLeftLeg.scale.set(1, 0.4, 1);
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(-0.25, 0.2, -0.3);
-                frontRightLeg.rotation.y = Math.PI / 2;  // Match body rotation
-                frontRightLeg.scale.set(1, 0.4, 1);  // Flatten the legs
+                frontRightLeg.position.set(-0.25, 0.1, -0.3);  // Lowered position
+                frontRightLeg.rotation.y = Math.PI / 2;
+                frontRightLeg.scale.set(1, 0.4, 1);
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(0.25, 0.2, 0.3);
-                backLeftLeg.rotation.y = Math.PI / 2;  // Match body rotation
-                backLeftLeg.scale.set(1, 0.4, 1);  // Flatten the legs
+                backLeftLeg.position.set(0.25, 0.1, 0.3);  // Lowered position
+                backLeftLeg.rotation.y = Math.PI / 2;
+                backLeftLeg.scale.set(1, 0.4, 1);
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(-0.25, 0.2, 0.3);
-                backRightLeg.rotation.y = Math.PI / 2;  // Match body rotation
-                backRightLeg.scale.set(1, 0.4, 1);  // Flatten the legs
+                backRightLeg.position.set(-0.25, 0.1, 0.3);  // Lowered position
+                backRightLeg.rotation.y = Math.PI / 2;
+                backRightLeg.scale.set(1, 0.4, 1);
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
             }
