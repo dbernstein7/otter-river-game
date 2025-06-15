@@ -139,8 +139,8 @@
                 this.container.appendChild(this.renderer.domElement);
 
                 // Setup camera
-                this.camera.position.set(0, 4, -8);
-                this.camera.lookAt(0, 0, 20);
+                this.camera.position.set(0, 4, 8);
+                this.camera.lookAt(0, 0, -20);
                 this.camera.fov = 70;
                 this.camera.updateProjectionMatrix();
 
@@ -330,7 +330,7 @@
                 // Create otter group to hold all parts
                 this.otter = new THREE.Group();
                 this.otter.position.y = 0.5;
-                this.otter.rotation.y = Math.PI; // Rotate entire otter 180 degrees
+                this.otter.rotation.y = 0;
 
                 // Create otter body (main torso)
                 const bodyGeometry = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
@@ -341,7 +341,7 @@
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.rotation.x = Math.PI / 2;
-                body.position.z = -0.2;
+                body.position.z = 0.2;
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -353,7 +353,7 @@
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.2, -1.1);
+                head.position.set(0, 0.2, 1.1);
                 head.castShadow = true;
                 this.otter.add(head);
 
@@ -365,8 +365,8 @@
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.rotation.x = Math.PI / 2;
-                snout.position.set(0, 0.1, -1.4);
+                snout.rotation.x = -Math.PI / 2;
+                snout.position.set(0, 0.1, 1.4);
                 snout.castShadow = true;
                 this.otter.add(snout);
 
@@ -378,10 +378,10 @@
                     metalness: 0.8
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(-0.15, 0.3, -1.2);
+                leftEye.position.set(-0.15, 0.3, 1.2);
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(0.15, 0.3, -1.2);
+                rightEye.position.set(0.15, 0.3, 1.2);
                 this.otter.add(rightEye);
 
                 // Create otter ears
@@ -392,11 +392,11 @@
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(-0.2, 0.5, -1.0);
+                leftEar.position.set(-0.2, 0.5, 1.0);
                 leftEar.castShadow = true;
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(0.2, 0.5, -1.0);
+                rightEar.position.set(0.2, 0.5, 1.0);
                 rightEar.castShadow = true;
                 this.otter.add(rightEar);
 
@@ -409,7 +409,7 @@
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
                 tail.rotation.x = Math.PI / 2;
-                tail.position.set(0, 0.1, 1.0);
+                tail.position.set(0, 0.1, -1.0);
                 tail.castShadow = true;
                 this.otter.add(tail);
 
@@ -423,23 +423,23 @@
 
                 // Front legs
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(-0.3, -0.2, -0.6);
+                frontLeftLeg.position.set(-0.3, -0.2, 0.6);
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
 
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(0.3, -0.2, -0.6);
+                frontRightLeg.position.set(0.3, -0.2, 0.6);
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
 
                 // Back legs
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(-0.3, -0.2, 0.6);
+                backLeftLeg.position.set(-0.3, -0.2, -0.6);
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
 
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(0.3, -0.2, 0.6);
+                backRightLeg.position.set(0.3, -0.2, -0.6);
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
 
@@ -454,16 +454,16 @@
                 // Left whiskers
                 for (let i = 0; i < 3; i++) {
                     const leftWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    leftWhisker.rotation.z = -Math.PI / 4;
-                    leftWhisker.position.set(-0.2, 0.1 + i * 0.05, -1.4);
+                    leftWhisker.rotation.z = Math.PI / 4;
+                    leftWhisker.position.set(-0.2, 0.1 + i * 0.05, 1.4);
                     this.otter.add(leftWhisker);
                 }
 
                 // Right whiskers
                 for (let i = 0; i < 3; i++) {
                     const rightWhisker = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
-                    rightWhisker.rotation.z = Math.PI / 4;
-                    rightWhisker.position.set(0.2, 0.1 + i * 0.05, -1.4);
+                    rightWhisker.rotation.z = -Math.PI / 4;
+                    rightWhisker.position.set(0.2, 0.1 + i * 0.05, 1.4);
                     this.otter.add(rightWhisker);
                 }
 
