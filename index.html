@@ -673,62 +673,164 @@
                     }
                 }
 
-                let geometry;
-                switch(selectedType.shape) {
-                    case 'fish':
-                        // Create a more realistic fish shape
-                        const fishShape = new THREE.Shape();
-                        fishShape.moveTo(0, 0);
-                        fishShape.bezierCurveTo(0.2, 0.1, 0.3, 0.2, 0.4, 0);
-                        fishShape.bezierCurveTo(0.3, -0.2, 0.2, -0.1, 0, 0);
-                        const fishExtrudeSettings = {
-                            steps: 1,
-                            depth: 0.1,
-                            bevelEnabled: true,
-                            bevelThickness: 0.1,
-                            bevelSize: 0.1,
-                            bevelSegments: 3
-                        };
-                        geometry = new THREE.ExtrudeGeometry(fishShape, fishExtrudeSettings);
-                        break;
-                    case 'clam':
-                        geometry = new THREE.SphereGeometry(0.4, 32, 32);
-                        break;
-                    case 'seahorse':
-                        geometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 32);
-                        break;
-                    case 'jellyfish':
-                        // Create a more realistic jellyfish shape
-                        const jellyShape = new THREE.Shape();
-                        jellyShape.moveTo(0, 0);
-                        jellyShape.bezierCurveTo(0.2, 0.3, 0.4, 0.3, 0.5, 0);
-                        jellyShape.bezierCurveTo(0.4, -0.3, 0.2, -0.3, 0, 0);
-                        const jellyExtrudeSettings = {
-                            steps: 1,
-                            depth: 0.1,
-                            bevelEnabled: true,
-                            bevelThickness: 0.1,
-                            bevelSize: 0.1,
-                            bevelSegments: 3
-                        };
-                        geometry = new THREE.ExtrudeGeometry(jellyShape, jellyExtrudeSettings);
-                        break;
-                    case 'starfish':
-                        geometry = new THREE.StarGeometry(0.4, 5, 0.2);
-                        break;
-                    default:
-                        geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                let collectible;
+                if (selectedType.shape === 'fish') {
+                    // Create fish group
+                    collectible = new THREE.Group();
+                    
+                    // Create fish body
+                    const bodyGeometry = new THREE.CapsuleGeometry(0.2, 0.6, 8, 16);
+                    const bodyMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+                    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                    body.rotation.x = Math.PI / 2;
+                    body.rotation.z = Math.PI / 2;
+                    collectible.add(body);
+
+                    // Create tail fin
+                    const tailGeometry = new THREE.ConeGeometry(0.2, 0.4, 4);
+                    const tailMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+                    const tail = new THREE.Mesh(tailGeometry, tailMaterial);
+                    tail.position.set(0.4, 0, 0);
+                    tail.rotation.z = -Math.PI / 2;
+                    tail.scale.set(1, 0.5, 1);
+                    collectible.add(tail);
+
+                    // Create dorsal fin (top)
+                    const dorsalGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
+                    const dorsalMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+                    const dorsal = new THREE.Mesh(dorsalGeometry, dorsalMaterial);
+                    dorsal.position.set(0, 0.2, 0);
+                    dorsal.rotation.x = Math.PI / 2;
+                    dorsal.scale.set(1, 0.5, 1);
+                    collectible.add(dorsal);
+
+                    // Create pectoral fins (sides)
+                    const pectoralGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+                    const pectoralMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+                    
+                    // Left pectoral fin
+                    const leftPectoral = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+                    leftPectoral.position.set(0, 0, 0.2);
+                    leftPectoral.rotation.z = Math.PI / 2;
+                    leftPectoral.rotation.y = Math.PI / 4;
+                    collectible.add(leftPectoral);
+                    
+                    // Right pectoral fin
+                    const rightPectoral = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+                    rightPectoral.position.set(0, 0, -0.2);
+                    rightPectoral.rotation.z = -Math.PI / 2;
+                    rightPectoral.rotation.y = -Math.PI / 4;
+                    collectible.add(rightPectoral);
+
+                    // Create pelvic fins (bottom)
+                    const pelvicGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+                    const pelvicMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+                    
+                    // Left pelvic fin
+                    const leftPelvic = new THREE.Mesh(pelvicGeometry, pelvicMaterial);
+                    leftPelvic.position.set(0, -0.2, 0.1);
+                    leftPelvic.rotation.z = -Math.PI / 2;
+                    leftPelvic.rotation.y = Math.PI / 4;
+                    collectible.add(leftPelvic);
+                    
+                    // Right pelvic fin
+                    const rightPelvic = new THREE.Mesh(pelvicGeometry, pelvicMaterial);
+                    rightPelvic.position.set(0, -0.2, -0.1);
+                    rightPelvic.rotation.z = -Math.PI / 2;
+                    rightPelvic.rotation.y = -Math.PI / 4;
+                    collectible.add(rightPelvic);
+
+                    // Create eyes
+                    const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                    const eyeMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x000000,
+                        roughness: 0.3,
+                        metalness: 0.8
+                    });
+                    
+                    // Left eye
+                    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                    leftEye.position.set(-0.2, 0.1, 0.1);
+                    collectible.add(leftEye);
+                    
+                    // Right eye
+                    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                    rightEye.position.set(-0.2, 0.1, -0.1);
+                    collectible.add(rightEye);
+
+                } else {
+                    // Handle other collectible types
+                    let geometry;
+                    switch(selectedType.shape) {
+                        case 'clam':
+                            geometry = new THREE.SphereGeometry(0.4, 32, 32);
+                            break;
+                        case 'seahorse':
+                            geometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 32);
+                            break;
+                        case 'jellyfish':
+                            const jellyShape = new THREE.Shape();
+                            jellyShape.moveTo(0, 0);
+                            jellyShape.bezierCurveTo(0.2, 0.3, 0.4, 0.3, 0.5, 0);
+                            jellyShape.bezierCurveTo(0.4, -0.3, 0.2, -0.3, 0, 0);
+                            const jellyExtrudeSettings = {
+                                steps: 1,
+                                depth: 0.1,
+                                bevelEnabled: true,
+                                bevelThickness: 0.1,
+                                bevelSize: 0.1,
+                                bevelSegments: 3
+                            };
+                            geometry = new THREE.ExtrudeGeometry(jellyShape, jellyExtrudeSettings);
+                            break;
+                        case 'starfish':
+                            geometry = new THREE.StarGeometry(0.4, 5, 0.2);
+                            break;
+                        default:
+                            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                    }
+
+                    const material = new THREE.MeshStandardMaterial({
+                        color: selectedType.color,
+                        roughness: 0.7,
+                        metalness: 0.3,
+                        emissive: selectedType.color,
+                        emissiveIntensity: 0.2
+                    });
+
+                    collectible = new THREE.Mesh(geometry, material);
                 }
 
-                const material = new THREE.MeshStandardMaterial({
-                    color: selectedType.color,
-                    roughness: 0.7,
-                    metalness: 0.3,
-                    emissive: selectedType.color,
-                    emissiveIntensity: 0.2
-                });
-
-                const collectible = new THREE.Mesh(geometry, material);
                 collectible.position.x = (Math.random() - 0.5) * 12;
                 collectible.position.z = -30;
                 collectible.position.y = -0.3;
