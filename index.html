@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Otter River Adventure</title>
     <style>
         * {
@@ -11,6 +11,9 @@
             box-sizing: border-box;
             touch-action: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
         body {
             margin: 0;
@@ -54,6 +57,7 @@
             z-index: 2000;
             padding: 10px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         #home-screen h1 {
             font-size: 24px;
@@ -98,6 +102,7 @@
             color: white;
             cursor: pointer;
             font-size: 12px;
+            touch-action: manipulation;
         }
         .unlockable button:disabled {
             background: #666;
@@ -125,9 +130,11 @@
             cursor: pointer;
             margin-top: 10px;
             transition: transform 0.2s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
-        #start-button:hover {
-            transform: scale(1.05);
+        #start-button:active {
+            transform: scale(0.95);
         }
         #controls {
             position: absolute;
@@ -152,6 +159,8 @@
             color: white;
             font-size: 20px;
             user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .collapsible {
             width: 100%;
@@ -165,6 +174,7 @@
             margin: 2px 0;
             color: white;
             font-size: 14px;
+            touch-action: manipulation;
         }
         .collapsible:after {
             content: '▼';
@@ -194,7 +204,7 @@
             <button class="collapsible">How to Play</button>
             <div class="content">
                 <div class="section">
-                    <p>Arrow Keys to move</p>
+                    <p>Use the controls at the bottom to move</p>
                     <p>🎯 Collect fish and clams while avoiding obstacles</p>
                     <p>⚡ Game speeds up as you level up</p>
                     <p>✨ Rarer fish appear at higher levels</p>
@@ -254,7 +264,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
-        let gameInstance = null; // Store game instance globally
+        let gameInstance = null;
 
         // Add collapsible functionality
         document.addEventListener('DOMContentLoaded', () => {
@@ -285,7 +295,15 @@
                 const startButton = document.getElementById('start-button');
                 if (startButton) {
                     console.log('Start button found, adding click listener');
-                    startButton.addEventListener('click', () => {
+                    startButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        console.log('Start button touched');
+                        if (gameInstance) {
+                            gameInstance.startGame();
+                        }
+                    });
+                    startButton.addEventListener('click', (e) => {
+                        e.preventDefault();
                         console.log('Start button clicked');
                         if (gameInstance) {
                             gameInstance.startGame();
@@ -298,7 +316,14 @@
                 // Add wear hat button listener
                 const hatButton = document.querySelector('.unlockable button');
                 if (hatButton) {
-                    hatButton.addEventListener('click', () => {
+                    hatButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        if (gameInstance) {
+                            gameInstance.wearHat();
+                        }
+                    });
+                    hatButton.addEventListener('click', (e) => {
+                        e.preventDefault();
                         if (gameInstance) {
                             gameInstance.wearHat();
                         }
@@ -632,6 +657,39 @@
                 }
 
                 this.renderer.render(this.scene, this.camera);
+            }
+
+            setupControls() {
+                const leftControl = document.getElementById('left-control');
+                const rightControl = document.getElementById('right-control');
+
+                // Touch events for left control
+                leftControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.moveDirection = -1;
+                });
+                leftControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === -1) this.moveDirection = 0;
+                });
+                leftControl.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === -1) this.moveDirection = 0;
+                });
+
+                // Touch events for right control
+                rightControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.moveDirection = 1;
+                });
+                rightControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === 1) this.moveDirection = 0;
+                });
+                rightControl.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === 1) this.moveDirection = 0;
+                });
             }
         }
     </script>
