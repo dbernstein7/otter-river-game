@@ -179,6 +179,25 @@
             align-items: center;
             z-index: 1000;
         }
+        .arrow-button {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .arrow-button:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
         #joystick-base {
             width: 100px;
             height: 100px;
@@ -302,9 +321,8 @@
             <button id="start-button">Start Adventure!</button>
         </div>
         <div id="controls">
-            <div id="joystick-base">
-                <div id="joystick-knob"></div>
-            </div>
+            <button class="arrow-button" id="left-arrow">←</button>
+            <button class="arrow-button" id="right-arrow">→</button>
         </div>
     </div>
 
@@ -1326,71 +1344,51 @@
             }
 
             setupControls() {
-                const joystickBase = document.getElementById('joystick-base');
-                const joystickKnob = document.getElementById('joystick-knob');
-                let isDragging = false;
-                let baseX = joystickBase.offsetLeft + joystickBase.offsetWidth / 2;
-                let baseY = joystickBase.offsetTop + joystickBase.offsetHeight / 2;
-                const maxDistance = 30; // Maximum distance the knob can move from center
+                const leftArrow = document.getElementById('left-arrow');
+                const rightArrow = document.getElementById('right-arrow');
 
-                // Touch start event
-                joystickBase.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    isDragging = true;
-                    const touch = e.touches[0];
-                    updateJoystick(touch.clientX, touch.clientY);
+                // Touch events for left arrow
+                leftArrow.addEventListener('touchstart', () => {
+                    this.moveDirection = -1;
                 });
-
-                // Touch move event
-                document.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    if (!isDragging) return;
-                    
-                    const touch = e.touches[0];
-                    updateJoystick(touch.clientX, touch.clientY);
+                leftArrow.addEventListener('touchend', () => {
+                    this.moveDirection = 0;
                 });
-
-                // Touch end event
-                document.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    isDragging = false;
-                    joystickKnob.style.transform = 'translate(-50%, -50%)';
+                leftArrow.addEventListener('touchcancel', () => {
                     this.moveDirection = 0;
                 });
 
-                // Touch cancel event
-                document.addEventListener('touchcancel', (e) => {
-                    e.preventDefault();
-                    isDragging = false;
-                    joystickKnob.style.transform = 'translate(-50%, -50%)';
+                // Touch events for right arrow
+                rightArrow.addEventListener('touchstart', () => {
+                    this.moveDirection = 1;
+                });
+                rightArrow.addEventListener('touchend', () => {
+                    this.moveDirection = 0;
+                });
+                rightArrow.addEventListener('touchcancel', () => {
                     this.moveDirection = 0;
                 });
 
-                function updateJoystick(x, y) {
-                    // Calculate distance and angle from center
-                    const deltaX = x - baseX;
-                    const deltaY = y - baseY;
-                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                    const angle = Math.atan2(deltaY, deltaX);
+                // Mouse events for left arrow
+                leftArrow.addEventListener('mousedown', () => {
+                    this.moveDirection = -1;
+                });
+                leftArrow.addEventListener('mouseup', () => {
+                    this.moveDirection = 0;
+                });
+                leftArrow.addEventListener('mouseleave', () => {
+                    this.moveDirection = 0;
+                });
 
-                    // Limit the distance
-                    const limitedDistance = Math.min(distance, maxDistance);
-                    
-                    // Calculate new position
-                    const newX = Math.cos(angle) * limitedDistance;
-                    const newY = Math.sin(angle) * limitedDistance;
-
-                    // Update knob position
-                    joystickKnob.style.transform = `translate(calc(-50% + ${newX}px), calc(-50% + ${newY}px))`;
-
-                    // Update movement direction (-1 to 1)
-                    this.moveDirection = newX / maxDistance;
-                }
-
-                // Update base position on window resize
-                window.addEventListener('resize', () => {
-                    baseX = joystickBase.offsetLeft + joystickBase.offsetWidth / 2;
-                    baseY = joystickBase.offsetTop + joystickBase.offsetHeight / 2;
+                // Mouse events for right arrow
+                rightArrow.addEventListener('mousedown', () => {
+                    this.moveDirection = 1;
+                });
+                rightArrow.addEventListener('mouseup', () => {
+                    this.moveDirection = 0;
+                });
+                rightArrow.addEventListener('mouseleave', () => {
+                    this.moveDirection = 0;
                 });
             }
 
