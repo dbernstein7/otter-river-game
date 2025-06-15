@@ -1432,8 +1432,8 @@
                 rightEar.rotation.y = Math.PI / 2;
                 this.otter.add(rightEar);
 
-                // Create flattened tail
-                const tailGeometry = new THREE.BoxGeometry(0.4, 0.15, 0.6);
+                // Create oval tail
+                const tailGeometry = new THREE.SphereGeometry(0.3, 32, 32);
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
@@ -1443,6 +1443,7 @@
                 tail.position.set(0, 0.1, 0.7);
                 tail.rotation.y = Math.PI / 2;
                 tail.rotation.x = Math.PI / 2;  // Rotate 90 degrees on X axis
+                tail.scale.set(1.5, 0.4, 1);  // Stretch to make oval shape
                 tail.castShadow = true;
                 this.otter.add(tail);
 
