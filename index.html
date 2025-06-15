@@ -1368,7 +1368,6 @@
                 body.position.y = 0.1;
                 body.rotation.y = Math.PI / 2;
                 body.scale.set(1.2, 0.8, 0.8);
-                body.castShadow = true;
                 this.otter.add(body);
 
                 // Create head
@@ -1382,7 +1381,6 @@
                 head.position.set(0, 0.2, -0.7);
                 head.rotation.y = Math.PI / 2;
                 head.scale.set(1, 0.6, 0.8);
-                head.castShadow = true;
                 this.otter.add(head);
 
                 // Create snout
@@ -1397,7 +1395,6 @@
                 snout.rotation.x = Math.PI / 2;
                 snout.rotation.y = Math.PI / 2;
                 snout.scale.set(1, 0.6, 0.8);
-                snout.castShadow = true;
                 this.otter.add(snout);
 
                 // Create eyes
@@ -1444,8 +1441,7 @@
                 tail.rotation.y = Math.PI / 2;  // Rotate 90 degrees on Y axis
                 tail.rotation.x = Math.PI / 2;  // Rotate 90 degrees on X axis
                 tail.rotation.z = Math.PI / 2;  // Rotate 90 degrees on Z axis
-                tail.scale.set(2.5, 0.2, 0.8);  // More elongated and flatter
-                tail.castShadow = true;
+                tail.scale.set(2.5, 0.15, 0.8);  // Decreased width from 0.2 to 0.15
                 this.otter.add(tail);
 
                 // Create legs (shorter)
@@ -1459,25 +1455,21 @@
                 frontLeftLeg.position.set(0.25, -0.1, -0.3);
                 frontLeftLeg.rotation.y = Math.PI / 2;
                 frontLeftLeg.scale.set(1, 0.4, 1);
-                frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
                 frontRightLeg.position.set(-0.25, -0.1, -0.3);
                 frontRightLeg.rotation.y = Math.PI / 2;
                 frontRightLeg.scale.set(1, 0.4, 1);
-                frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
                 backLeftLeg.position.set(0.25, -0.1, 0.3);
                 backLeftLeg.rotation.y = Math.PI / 2;
                 backLeftLeg.scale.set(1, 0.4, 1);
-                backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
                 backRightLeg.position.set(-0.25, -0.1, 0.3);
                 backRightLeg.rotation.y = Math.PI / 2;
                 backRightLeg.scale.set(1, 0.4, 1);
-                backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
             }
 
