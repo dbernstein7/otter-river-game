@@ -290,7 +290,7 @@
                 });
                 this.river = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.river.rotation.x = -Math.PI / 2;
-                this.river.position.z = -30;
+                this.river.position.z = -15;
                 this.river.position.y = 0.01;
                 this.river.receiveShadow = true;
                 this.scene.add(this.river);
@@ -307,7 +307,7 @@
                 });
                 this.water = new THREE.Mesh(waterGeometry, waterMaterial);
                 this.water.rotation.x = -Math.PI / 2;
-                this.water.position.z = -30;
+                this.water.position.z = -15;
                 this.water.position.y = 0.02;
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
@@ -385,7 +385,7 @@
                 const obstacle = new THREE.Mesh(geometry, material);
                 
                 obstacle.position.x = (Math.random() - 0.5) * 12;
-                obstacle.position.z = -60;
+                obstacle.position.z = -30;
                 obstacle.position.y = 0.5;
                 
                 this.scene.add(obstacle);
