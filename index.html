@@ -179,46 +179,20 @@
             align-items: center;
             z-index: 1000;
         }
-        .arrow-button {
+        #left-control, #right-control {
             width: 60px;
             height: 60px;
             background: rgba(255, 255, 255, 0.2);
-            border: none;
             border-radius: 50%;
-            margin: 0 10px;
+            margin: 0 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 24px;
-            cursor: pointer;
+            font-size: 20px;
+            user-select: none;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-        }
-        .arrow-button:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        #joystick-base {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: block;  // Changed from 'none' to 'block'
-        }
-        #joystick-knob {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
         }
         .collapsible {
             width: 100%;
@@ -321,8 +295,8 @@
             <button id="start-button">Start Adventure!</button>
         </div>
         <div id="controls">
-            <button class="arrow-button" id="left-arrow">←</button>
-            <button class="arrow-button" id="right-arrow">→</button>
+            <div id="left-control">←</div>
+            <div id="right-control">→</div>
         </div>
     </div>
 
@@ -1205,9 +1179,9 @@
                 this.lives = 3;
                 this.levelTimer = 30;
                 this.lastLevelTime = Date.now();
-                this.obstacleSpeed = 0.2;
-                this.spawnRate = 0.05;  // Increased from 0.02
-                this.collectibleSpawnRate = 0.02;  // Increased from 0.01
+                this.obstacleSpeed = 0.15;  // Reduced initial speed
+                this.spawnRate = 0.01;  // Reduced initial spawn rate
+                this.collectibleSpawnRate = 0.02;  // Keep collectible rate the same
                 
                 // Update UI
                 this.updateScore();
@@ -1284,12 +1258,12 @@
                     this.lastLevelTime = currentTime;
                     this.updateTimer();
 
-                    // Level up every 30 seconds
+                    // Level up every 30 seconds with more gradual difficulty increase
                     if (this.levelTimer <= 0) {
                         this.level++;
                         this.levelTimer = 30;
-                        this.obstacleSpeed += 0.05;
-                        this.spawnRate += 0.005;
+                        this.obstacleSpeed += 0.03;  // Smaller speed increase
+                        this.spawnRate += 0.002;    // Smaller spawn rate increase
                         this.collectibleSpawnRate += 0.002;
                         this.updateLevel();
                     }
@@ -1297,8 +1271,9 @@
                     this.updateOtterPosition();
                 }
 
-                // Spawn obstacles randomly
-                if (Math.random() < this.spawnRate) {
+                // Spawn obstacles randomly with level-based probability
+                const spawnChance = this.spawnRate * (1 + (this.level - 1) * 0.1);  // Gradual increase based on level
+                if (Math.random() < spawnChance) {
                     this.spawnObstacle();
                 }
 
@@ -1344,51 +1319,35 @@
             }
 
             setupControls() {
-                const leftArrow = document.getElementById('left-arrow');
-                const rightArrow = document.getElementById('right-arrow');
+                const leftControl = document.getElementById('left-control');
+                const rightControl = document.getElementById('right-control');
 
-                // Touch events for left arrow
-                leftArrow.addEventListener('touchstart', () => {
+                // Touch events for left control
+                leftControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
                     this.moveDirection = -1;
                 });
-                leftArrow.addEventListener('touchend', () => {
-                    this.moveDirection = 0;
+                leftControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === -1) this.moveDirection = 0;
                 });
-                leftArrow.addEventListener('touchcancel', () => {
-                    this.moveDirection = 0;
+                leftControl.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === -1) this.moveDirection = 0;
                 });
 
-                // Touch events for right arrow
-                rightArrow.addEventListener('touchstart', () => {
+                // Touch events for right control
+                rightControl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
                     this.moveDirection = 1;
                 });
-                rightArrow.addEventListener('touchend', () => {
-                    this.moveDirection = 0;
+                rightControl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === 1) this.moveDirection = 0;
                 });
-                rightArrow.addEventListener('touchcancel', () => {
-                    this.moveDirection = 0;
-                });
-
-                // Mouse events for left arrow
-                leftArrow.addEventListener('mousedown', () => {
-                    this.moveDirection = -1;
-                });
-                leftArrow.addEventListener('mouseup', () => {
-                    this.moveDirection = 0;
-                });
-                leftArrow.addEventListener('mouseleave', () => {
-                    this.moveDirection = 0;
-                });
-
-                // Mouse events for right arrow
-                rightArrow.addEventListener('mousedown', () => {
-                    this.moveDirection = 1;
-                });
-                rightArrow.addEventListener('mouseup', () => {
-                    this.moveDirection = 0;
-                });
-                rightArrow.addEventListener('mouseleave', () => {
-                    this.moveDirection = 0;
+                rightControl.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    if (this.moveDirection === 1) this.moveDirection = 0;
                 });
             }
 
