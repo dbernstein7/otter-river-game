@@ -179,20 +179,27 @@
             align-items: center;
             z-index: 1000;
         }
-        #left-control, #right-control {
-            width: 60px;
-            height: 60px;
+        #joystick-base {
+            width: 100px;
+            height: 100px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            margin: 0 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 20px;
-            user-select: none;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+        }
+        #joystick-knob {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
         .collapsible {
             width: 100%;
@@ -295,8 +302,9 @@
             <button id="start-button">Start Adventure!</button>
         </div>
         <div id="controls">
-            <div id="left-control">←</div>
-            <div id="right-control">→</div>
+            <div id="joystick-base">
+                <div id="joystick-knob"></div>
+            </div>
         </div>
     </div>
 
@@ -1318,36 +1326,80 @@
             }
 
             setupControls() {
-                const leftControl = document.getElementById('left-control');
-                const rightControl = document.getElementById('right-control');
+                const joystickBase = document.getElementById('joystick-base');
+                const joystickKnob = document.getElementById('joystick-knob');
+                let isDragging = false;
+                let startX = 0;
+                let startY = 0;
+                let baseX = 0;
+                let baseY = 0;
+                const maxDistance = 30; // Maximum distance the knob can move from center
 
-                // Touch events for left control
-                leftControl.addEventListener('touchstart', (e) => {
+                // Touch start event
+                document.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    this.moveDirection = -1;
-                });
-                leftControl.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    if (this.moveDirection === -1) this.moveDirection = 0;
-                });
-                leftControl.addEventListener('touchcancel', (e) => {
-                    e.preventDefault();
-                    if (this.moveDirection === -1) this.moveDirection = 0;
+                    const touch = e.touches[0];
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                    
+                    // Position the joystick base at touch point
+                    joystickBase.style.display = 'block';
+                    joystickBase.style.left = `${startX}px`;
+                    joystickBase.style.bottom = `${window.innerHeight - startY}px`;
+                    baseX = startX;
+                    baseY = startY;
+                    
+                    isDragging = true;
+                    updateJoystick(touch.clientX, touch.clientY);
                 });
 
-                // Touch events for right control
-                rightControl.addEventListener('touchstart', (e) => {
+                // Touch move event
+                document.addEventListener('touchmove', (e) => {
                     e.preventDefault();
-                    this.moveDirection = 1;
+                    if (!isDragging) return;
+                    
+                    const touch = e.touches[0];
+                    updateJoystick(touch.clientX, touch.clientY);
                 });
-                rightControl.addEventListener('touchend', (e) => {
+
+                // Touch end event
+                document.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    if (this.moveDirection === 1) this.moveDirection = 0;
+                    isDragging = false;
+                    joystickBase.style.display = 'none';
+                    joystickKnob.style.transform = 'translate(-50%, -50%)';
+                    this.moveDirection = 0;
                 });
-                rightControl.addEventListener('touchcancel', (e) => {
+
+                // Touch cancel event
+                document.addEventListener('touchcancel', (e) => {
                     e.preventDefault();
-                    if (this.moveDirection === 1) this.moveDirection = 0;
+                    isDragging = false;
+                    joystickBase.style.display = 'none';
+                    joystickKnob.style.transform = 'translate(-50%, -50%)';
+                    this.moveDirection = 0;
                 });
+
+                function updateJoystick(x, y) {
+                    // Calculate distance and angle from center
+                    const deltaX = x - baseX;
+                    const deltaY = y - baseY;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    const angle = Math.atan2(deltaY, deltaX);
+
+                    // Limit the distance
+                    const limitedDistance = Math.min(distance, maxDistance);
+                    
+                    // Calculate new position
+                    const newX = Math.cos(angle) * limitedDistance;
+                    const newY = Math.sin(angle) * limitedDistance;
+
+                    // Update knob position
+                    joystickKnob.style.transform = `translate(calc(-50% + ${newX}px), calc(-50% + ${newY}px))`;
+
+                    // Update movement direction (-1 to 1)
+                    this.moveDirection = newX / maxDistance;
+                }
             }
 
             loadOtter() {
