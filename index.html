@@ -1226,8 +1226,7 @@
                     if (obstacle.position.z > 10) {
                         this.scene.remove(obstacle);
                         this.obstacles.splice(i, 1);
-                        this.score++;
-                        this.updateScore();
+                        // Removed points for avoiding obstacles
                     }
                 }
             }
