@@ -436,9 +436,11 @@
                 // Create ground
                 const groundGeometry = new THREE.PlaneGeometry(100, 100);
                 const groundMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x228B22,  // Forest green
-                    roughness: 0.8,
-                    metalness: 0.2
+                    color: 0x1E90FF,  // Dodger blue to match water
+                    roughness: 0.3,
+                    metalness: 0.2,
+                    transparent: true,
+                    opacity: 0.8
                 });
                 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
                 ground.rotation.x = -Math.PI / 2;
