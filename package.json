@@ -1,0 +1,16 @@
+{
+  "name": "otter-river-game",
+  "version": "1.0.0",
+  "description": "A Three.js-based otter river adventure game",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
