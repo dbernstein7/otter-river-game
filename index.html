@@ -933,7 +933,7 @@
             }
 
             spawnObstacle() {
-                // 70% chance for rock, 30% chance for red box
+                // 70% chance for rock, 30% chance for wooden pole
                 const isRock = Math.random() < 0.7;
                 let geometry, material;
 
@@ -945,18 +945,19 @@
                         metalness: 0.2
                     });
                 } else {
-                    geometry = new THREE.BoxGeometry(1, 1, 1);
+                    // Create wooden pole
+                    geometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);  // Taller, thinner cylinder
                     material = new THREE.MeshStandardMaterial({
-                        color: 0xff0000,
-                        roughness: 0.5,
-                        metalness: 0.5
+                        color: 0x8B4513,  // Saddle brown for wood
+                        roughness: 0.9,    // More rough for wood texture
+                        metalness: 0.1     // Less metallic
                     });
                 }
 
                 const obstacle = new THREE.Mesh(geometry, material);
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
-                obstacle.position.y = 0.2;  // Adjusted to be at water level
+                obstacle.position.y = 1;  // Raised to account for pole height
                 obstacle.castShadow = true;
                 obstacle.receiveShadow = true;
 
