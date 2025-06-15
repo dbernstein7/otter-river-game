@@ -921,6 +921,80 @@
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
             }
+
+            updateObstacles() {
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obstacle = this.obstacles[i];
+                    obstacle.position.z += this.obstacleSpeed;
+
+                    // Check collision
+                    if (this.checkCollision(this.otter, obstacle)) {
+                        this.gameOver = true;
+                        this.showGameOver();
+                        return;
+                    }
+
+                    // Remove obstacles that are behind the camera
+                    if (obstacle.position.z > 10) {
+                        this.scene.remove(obstacle);
+                        this.obstacles.splice(i, 1);
+                        this.score++;
+                        this.updateScore();
+                    }
+                }
+            }
+
+            spawnObstacle() {
+                // 70% chance for rock, 30% chance for red box
+                const isRock = Math.random() < 0.7;
+                let geometry, material;
+
+                if (isRock) {
+                    geometry = new THREE.DodecahedronGeometry(0.5, 0);
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0x808080,
+                        roughness: 0.8,
+                        metalness: 0.2
+                    });
+                } else {
+                    geometry = new THREE.BoxGeometry(1, 1, 1);
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0xff0000,
+                        roughness: 0.5,
+                        metalness: 0.5
+                    });
+                }
+
+                const obstacle = new THREE.Mesh(geometry, material);
+                obstacle.position.x = (Math.random() - 0.5) * 12;
+                obstacle.position.z = -30;
+                obstacle.position.y = 0.5;
+                obstacle.castShadow = true;
+                obstacle.receiveShadow = true;
+
+                this.scene.add(obstacle);
+                this.obstacles.push(obstacle);
+            }
+
+            checkCollision(otter, obstacle) {
+                const distance = otter.position.distanceTo(obstacle.position);
+                return distance < 1;
+            }
+
+            updateScore() {
+                const scoreElement = document.getElementById('score');
+                if (scoreElement) {
+                    scoreElement.textContent = `Score: ${this.score}`;
+                }
+            }
+
+            updateOtterPosition() {
+                if (this.otter) {
+                    this.otter.position.x += this.moveDirection * this.moveSpeed;
+                    // Keep otter within bounds
+                    this.otter.position.x = Math.max(-8, Math.min(8, this.otter.position.x));
+                }
+            }
         }
     </script>
 </body>
