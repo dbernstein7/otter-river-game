@@ -295,14 +295,21 @@
                 const startButton = document.getElementById('start-button');
                 if (startButton) {
                     console.log('Start button found, adding click listener');
-                    startButton.addEventListener('touchstart', (e) => {
+                    
+                    // Remove any existing listeners
+                    const newStartButton = startButton.cloneNode(true);
+                    startButton.parentNode.replaceChild(newStartButton, startButton);
+                    
+                    // Add new listeners
+                    newStartButton.addEventListener('touchstart', (e) => {
                         e.preventDefault();
                         console.log('Start button touched');
                         if (gameInstance) {
                             gameInstance.startGame();
                         }
                     });
-                    startButton.addEventListener('click', (e) => {
+                    
+                    newStartButton.addEventListener('click', (e) => {
                         e.preventDefault();
                         console.log('Start button clicked');
                         if (gameInstance) {
@@ -559,7 +566,35 @@
             startGame() {
                 console.log('Start game called');
                 this.isPlaying = true;
-                document.getElementById('home-screen').style.display = 'none';
+                this.gameOver = false;
+                this.score = 0;
+                this.level = 1;
+                this.obstacleSpeed = 0.2;
+                this.spawnRate = 0.02;
+                this.collectibleSpawnRate = 0.01;
+                
+                // Hide home screen
+                const homeScreen = document.getElementById('home-screen');
+                if (homeScreen) {
+                    homeScreen.style.display = 'none';
+                }
+                
+                // Reset otter position
+                if (this.otter) {
+                    this.otter.position.set(0, 0, 0);
+                }
+                
+                // Clear existing obstacles and collectibles
+                this.obstacles.forEach(obstacle => this.scene.remove(obstacle));
+                this.obstacles = [];
+                this.collectibles.forEach(collectible => this.scene.remove(collectible));
+                this.collectibles = [];
+                
+                // Update score display
+                const scoreElement = document.getElementById('score');
+                if (scoreElement) {
+                    scoreElement.textContent = 'Score: 0';
+                }
                 
                 // Start the game loop if it's not already running
                 if (!this.gameLoopRunning) {
