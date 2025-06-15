@@ -139,9 +139,9 @@
                 this.container.appendChild(this.renderer.domElement);
 
                 // Setup camera
-                this.camera.position.set(0, 3, 5);
-                this.camera.lookAt(0, 0, -10);
-                this.camera.fov = 60;
+                this.camera.position.set(0, 4, 8);
+                this.camera.lookAt(0, 0, -20);
+                this.camera.fov = 70;
                 this.camera.updateProjectionMatrix();
 
                 // Add lights
@@ -279,7 +279,7 @@
 
             createRiver() {
                 // Create river with repeating pattern
-                const riverGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
+                const riverGeometry = new THREE.PlaneGeometry(20, 60, 32, 32);
                 const riverMaterial = new THREE.MeshStandardMaterial({
                     color: 0x0077be,
                     metalness: 0.1,
@@ -290,13 +290,13 @@
                 });
                 this.river = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.river.rotation.x = -Math.PI / 2;
-                this.river.position.z = -50;
-                this.river.position.y = 0.01; // Slightly above ground to prevent z-fighting
+                this.river.position.z = -30;
+                this.river.position.y = 0.01;
                 this.river.receiveShadow = true;
                 this.scene.add(this.river);
 
                 // Add water with repeating pattern
-                const waterGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
+                const waterGeometry = new THREE.PlaneGeometry(20, 60, 32, 32);
                 const waterMaterial = new THREE.MeshStandardMaterial({
                     color: 0x0077be,
                     metalness: 0.3,
@@ -307,8 +307,8 @@
                 });
                 this.water = new THREE.Mesh(waterGeometry, waterMaterial);
                 this.water.rotation.x = -Math.PI / 2;
-                this.water.position.z = -50;
-                this.water.position.y = 0.02; // Slightly above river
+                this.water.position.z = -30;
+                this.water.position.y = 0.02;
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
             }
@@ -375,7 +375,7 @@
                 if (this.moveDirection !== 0) {
                     this.otter.position.x += this.moveDirection * this.moveSpeed;
                     // Keep otter within bounds
-                    this.otter.position.x = Math.max(-5, Math.min(5, this.otter.position.x));
+                    this.otter.position.x = Math.max(-8, Math.min(8, this.otter.position.x));
                 }
             }
 
@@ -384,8 +384,8 @@
                 const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
                 const obstacle = new THREE.Mesh(geometry, material);
                 
-                obstacle.position.x = (Math.random() - 0.5) * 8;
-                obstacle.position.z = -100;
+                obstacle.position.x = (Math.random() - 0.5) * 12;
+                obstacle.position.z = -60;
                 obstacle.position.y = 0.5;
                 
                 this.scene.add(obstacle);
