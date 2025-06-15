@@ -965,28 +965,28 @@
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 8, 16);
+                const bodyGeometry = new THREE.SphereGeometry(0.4, 32, 32);  // Changed from CapsuleGeometry to SphereGeometry with more segments for smoother appearance
                 const bodyMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.position.y = 0.1;  // Lowered from 0.3 to 0.1
+                body.position.y = 0.1;
                 body.rotation.y = Math.PI / 2;
-                body.scale.set(1.2, 0.3, 0.8);
+                body.scale.set(1.2, 0.8, 0.8);  // Adjusted scale to maintain similar proportions
                 body.castShadow = true;
                 this.otter.add(body);
 
                 // Create head
-                const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+                const headGeometry = new THREE.SphereGeometry(0.25, 32, 32);  // Increased segments for smoother appearance
                 const headMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 0.2, -0.7);  // Lowered from 0.4 to 0.2
+                head.position.set(0, 0.2, -0.7);
                 head.rotation.y = Math.PI / 2;
                 head.scale.set(1, 0.6, 0.8);
                 head.castShadow = true;
