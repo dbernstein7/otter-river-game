@@ -800,47 +800,274 @@
                     rightEye.position.set(-0.2, 0.1, -0.1);
                     collectible.add(rightEye);
 
-                } else {
-                    // Handle other collectible types
-                    let geometry;
-                    switch(selectedType.shape) {
-                        case 'clam':
-                            geometry = new THREE.SphereGeometry(0.4, 32, 32);
+                    // Add special effects based on fish type
+                    switch(selectedType.type) {
+                        case 'rainbowFish':
+                            // Add rainbow trail
+                            const trailGeometry = new THREE.CircleGeometry(0.2, 32);
+                            const trailMaterial = new THREE.MeshBasicMaterial({
+                                color: 0xFF69B4,
+                                transparent: true,
+                                opacity: 0.3,
+                                side: THREE.DoubleSide
+                            });
+                            const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+                            trail.position.set(0.4, 0, 0);
+                            trail.rotation.x = Math.PI / 2;
+                            collectible.add(trail);
                             break;
-                        case 'seahorse':
-                            geometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 32);
+
+                        case 'goldenFish':
+                            // Add golden sparkles
+                            for (let i = 0; i < 5; i++) {
+                                const sparkleGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+                                const sparkleMaterial = new THREE.MeshBasicMaterial({
+                                    color: 0xFFD700,
+                                    transparent: true,
+                                    opacity: 0.8
+                                });
+                                const sparkle = new THREE.Mesh(sparkleGeometry, sparkleMaterial);
+                                sparkle.position.set(
+                                    (Math.random() - 0.5) * 0.4,
+                                    (Math.random() - 0.5) * 0.4,
+                                    (Math.random() - 0.5) * 0.4
+                                );
+                                collectible.add(sparkle);
+                            }
                             break;
-                        case 'jellyfish':
-                            const jellyShape = new THREE.Shape();
-                            jellyShape.moveTo(0, 0);
-                            jellyShape.bezierCurveTo(0.2, 0.3, 0.4, 0.3, 0.5, 0);
-                            jellyShape.bezierCurveTo(0.4, -0.3, 0.2, -0.3, 0, 0);
-                            const jellyExtrudeSettings = {
-                                steps: 1,
-                                depth: 0.1,
-                                bevelEnabled: true,
-                                bevelThickness: 0.1,
-                                bevelSize: 0.1,
-                                bevelSegments: 3
-                            };
-                            geometry = new THREE.ExtrudeGeometry(jellyShape, jellyExtrudeSettings);
+
+                        case 'emeraldFish':
+                            // Add emerald glow
+                            const emeraldGlowGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+                            const emeraldGlowMaterial = new THREE.MeshBasicMaterial({
+                                color: 0x00FF00,
+                                transparent: true,
+                                opacity: 0.2
+                            });
+                            const emeraldGlow = new THREE.Mesh(emeraldGlowGeometry, emeraldGlowMaterial);
+                            collectible.add(emeraldGlow);
                             break;
-                        case 'starfish':
-                            geometry = new THREE.StarGeometry(0.4, 5, 0.2);
+
+                        case 'diamondFish':
+                            // Add diamond sparkles and glow
+                            const diamondGlowGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+                            const diamondGlowMaterial = new THREE.MeshBasicMaterial({
+                                color: 0x00FFFF,
+                                transparent: true,
+                                opacity: 0.3
+                            });
+                            const diamondGlow = new THREE.Mesh(diamondGlowGeometry, diamondGlowMaterial);
+                            collectible.add(diamondGlow);
+
+                            // Add diamond facets
+                            for (let i = 0; i < 8; i++) {
+                                const facetGeometry = new THREE.PlaneGeometry(0.1, 0.1);
+                                const facetMaterial = new THREE.MeshBasicMaterial({
+                                    color: 0xFFFFFF,
+                                    transparent: true,
+                                    opacity: 0.5,
+                                    side: THREE.DoubleSide
+                                });
+                                const facet = new THREE.Mesh(facetGeometry, facetMaterial);
+                                const angle = (i / 8) * Math.PI * 2;
+                                facet.position.set(
+                                    Math.cos(angle) * 0.2,
+                                    Math.sin(angle) * 0.2,
+                                    0
+                                );
+                                facet.rotation.z = angle;
+                                collectible.add(facet);
+                            }
                             break;
-                        default:
-                            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
                     }
 
-                    const material = new THREE.MeshStandardMaterial({
-                        color: selectedType.color,
-                        roughness: 0.7,
-                        metalness: 0.3,
-                        emissive: selectedType.color,
-                        emissiveIntensity: 0.2
-                    });
+                } else {
+                    // Handle other collectible types
+                    switch(selectedType.shape) {
+                        case 'clam':
+                            // Create clam group
+                            collectible = new THREE.Group();
+                            
+                            // Create clam shell (bottom)
+                            const bottomShellGeometry = new THREE.SphereGeometry(0.4, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                            const shellMaterial = new THREE.MeshStandardMaterial({
+                                color: selectedType.color,
+                                roughness: 0.7,
+                                metalness: 0.3,
+                                emissive: selectedType.color,
+                                emissiveIntensity: 0.2
+                            });
+                            const bottomShell = new THREE.Mesh(bottomShellGeometry, shellMaterial);
+                            bottomShell.rotation.x = Math.PI;
+                            collectible.add(bottomShell);
 
-                    collectible = new THREE.Mesh(geometry, material);
+                            // Create clam shell (top)
+                            const topShellGeometry = new THREE.SphereGeometry(0.4, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                            const topShell = new THREE.Mesh(topShellGeometry, shellMaterial);
+                            topShell.rotation.x = Math.PI;
+                            topShell.position.y = 0.2;
+                            collectible.add(topShell);
+
+                            // Add pearl for high-value clam
+                            if (selectedType.points >= 15) {
+                                const pearlGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+                                const pearlMaterial = new THREE.MeshStandardMaterial({
+                                    color: 0xFFFFFF,
+                                    roughness: 0.2,
+                                    metalness: 0.8,
+                                    emissive: 0xFFFFFF,
+                                    emissiveIntensity: 0.5
+                                });
+                                const pearl = new THREE.Mesh(pearlGeometry, pearlMaterial);
+                                pearl.position.y = 0.1;
+                                collectible.add(pearl);
+                            }
+                            break;
+
+                        case 'seahorse':
+                            // Create seahorse group
+                            collectible = new THREE.Group();
+                            
+                            // Create seahorse body
+                            const seahorseBodyGeometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 32);
+                            const seahorseMaterial = new THREE.MeshStandardMaterial({
+                                color: selectedType.color,
+                                roughness: 0.7,
+                                metalness: 0.3,
+                                emissive: selectedType.color,
+                                emissiveIntensity: 0.2
+                            });
+                            const seahorseBody = new THREE.Mesh(seahorseBodyGeometry, seahorseMaterial);
+                            seahorseBody.rotation.x = Math.PI / 2;
+                            collectible.add(seahorseBody);
+
+                            // Create seahorse head
+                            const headGeometry = new THREE.ConeGeometry(0.15, 0.3, 32);
+                            const head = new THREE.Mesh(headGeometry, seahorseMaterial);
+                            head.position.set(0, 0.4, 0);
+                            head.rotation.x = -Math.PI / 2;
+                            collectible.add(head);
+
+                            // Create seahorse tail
+                            const tailCurve = new THREE.CatmullRomCurve3([
+                                new THREE.Vector3(0, -0.4, 0),
+                                new THREE.Vector3(0.2, -0.5, 0),
+                                new THREE.Vector3(0.3, -0.4, 0),
+                                new THREE.Vector3(0.4, -0.5, 0)
+                            ]);
+                            const tailGeometry = new THREE.TubeGeometry(tailCurve, 20, 0.05, 8, false);
+                            const tail = new THREE.Mesh(tailGeometry, seahorseMaterial);
+                            collectible.add(tail);
+
+                            // Add fins
+                            const finGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+                            const finMaterial = new THREE.MeshStandardMaterial({
+                                color: selectedType.color,
+                                roughness: 0.7,
+                                metalness: 0.3
+                            });
+                            
+                            // Dorsal fin
+                            const dorsalFin = new THREE.Mesh(finGeometry, finMaterial);
+                            dorsalFin.position.set(0, 0.2, 0);
+                            dorsalFin.rotation.x = Math.PI / 2;
+                            collectible.add(dorsalFin);
+
+                            // Pectoral fins
+                            const leftPectoralFin = new THREE.Mesh(finGeometry, finMaterial);
+                            leftPectoralFin.position.set(0.1, 0, 0.1);
+                            leftPectoralFin.rotation.z = Math.PI / 2;
+                            collectible.add(leftPectoralFin);
+
+                            const rightPectoralFin = new THREE.Mesh(finGeometry, finMaterial);
+                            rightPectoralFin.position.set(-0.1, 0, 0.1);
+                            rightPectoralFin.rotation.z = -Math.PI / 2;
+                            collectible.add(rightPectoralFin);
+                            break;
+
+                        case 'jellyfish':
+                            // Create jellyfish group
+                            collectible = new THREE.Group();
+                            
+                            // Create jellyfish body
+                            const jellyBodyGeometry = new THREE.SphereGeometry(0.3, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                            const jellyMaterial = new THREE.MeshStandardMaterial({
+                                color: selectedType.color,
+                                roughness: 0.3,
+                                metalness: 0.1,
+                                transparent: true,
+                                opacity: 0.8
+                            });
+                            const jellyBody = new THREE.Mesh(jellyBodyGeometry, jellyMaterial);
+                            jellyBody.rotation.x = Math.PI;
+                            collectible.add(jellyBody);
+
+                            // Add tentacles
+                            const tentacleCount = selectedType.points >= 12 ? 8 : 6;
+                            for (let i = 0; i < tentacleCount; i++) {
+                                const angle = (i / tentacleCount) * Math.PI * 2;
+                                const tentacleCurve = new THREE.CatmullRomCurve3([
+                                    new THREE.Vector3(Math.cos(angle) * 0.2, 0, Math.sin(angle) * 0.2),
+                                    new THREE.Vector3(Math.cos(angle) * 0.3, -0.2, Math.sin(angle) * 0.3),
+                                    new THREE.Vector3(Math.cos(angle) * 0.2, -0.4, Math.sin(angle) * 0.2)
+                                ]);
+                                const tentacleGeometry = new THREE.TubeGeometry(tentacleCurve, 20, 0.02, 8, false);
+                                const tentacle = new THREE.Mesh(tentacleGeometry, jellyMaterial);
+                                collectible.add(tentacle);
+                            }
+
+                            // Add glow effect for high-value jellyfish
+                            if (selectedType.points >= 12) {
+                                const glowGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+                                const glowMaterial = new THREE.MeshBasicMaterial({
+                                    color: selectedType.color,
+                                    transparent: true,
+                                    opacity: 0.3
+                                });
+                                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                                collectible.add(glow);
+                            }
+                            break;
+
+                        case 'starfish':
+                            // Create starfish group
+                            collectible = new THREE.Group();
+                            
+                            // Create starfish body
+                            const starGeometry = new THREE.StarGeometry(0.4, 5, 0.2);
+                            const starMaterial = new THREE.MeshStandardMaterial({
+                                color: selectedType.color,
+                                roughness: 0.7,
+                                metalness: 0.3,
+                                emissive: selectedType.color,
+                                emissiveIntensity: 0.2
+                            });
+                            const star = new THREE.Mesh(starGeometry, starMaterial);
+                            star.rotation.x = Math.PI / 2;
+                            collectible.add(star);
+
+                            // Add texture details
+                            const detailGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                            const detailMaterial = new THREE.MeshStandardMaterial({
+                                color: 0xFFFFFF,
+                                roughness: 0.5,
+                                metalness: 0.5
+                            });
+                            
+                            // Add details based on point value
+                            const detailCount = selectedType.points >= 6 ? 8 : 4;
+                            for (let i = 0; i < detailCount; i++) {
+                                const angle = (i / detailCount) * Math.PI * 2;
+                                const detail = new THREE.Mesh(detailGeometry, detailMaterial);
+                                detail.position.set(
+                                    Math.cos(angle) * 0.2,
+                                    0.1,
+                                    Math.sin(angle) * 0.2
+                                );
+                                collectible.add(detail);
+                            }
+                            break;
+                    }
                 }
 
                 collectible.position.x = (Math.random() - 0.5) * 12;
