@@ -270,6 +270,22 @@
                     }
                 });
             }
+
+            // Initialize game
+            const container = document.getElementById('game-container');
+            if (container) {
+                const game = new OtterRiverGame(container);
+                
+                // Add start button listener
+                document.getElementById('start-button').addEventListener('click', () => {
+                    game.startGame();
+                });
+
+                // Add wear hat button listener
+                document.querySelector('.unlockable button').addEventListener('click', () => {
+                    game.wearHat();
+                });
+            }
         });
 
         // Game code
@@ -369,6 +385,12 @@
 
             wearHat() {
                 if (this.unlockedItems.includes('topHat')) {
+                    // Remove any existing hat
+                    const existingHat = this.otter.children.find(child => child.userData.isHat);
+                    if (existingHat) {
+                        this.otter.remove(existingHat);
+                    }
+
                     // Add hat to otter model
                     const hatGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.2, 8);
                     const hatMaterial = new THREE.MeshStandardMaterial({
@@ -378,12 +400,19 @@
                     });
                     const hat = new THREE.Mesh(hatGeometry, hatMaterial);
                     hat.position.set(0, 0.8, 0);
+                    hat.userData.isHat = true;
                     this.otter.add(hat);
                 }
             }
 
             wearCrown() {
                 if (this.unlockedItems.includes('crown')) {
+                    // Remove any existing crown
+                    const existingCrown = this.otter.children.find(child => child.userData.isCrown);
+                    if (existingCrown) {
+                        this.otter.remove(existingCrown);
+                    }
+
                     // Add crown to otter model
                     const crownGeometry = new THREE.ConeGeometry(0.3, 0.4, 8);
                     const crownMaterial = new THREE.MeshStandardMaterial({
@@ -393,6 +422,7 @@
                     });
                     const crown = new THREE.Mesh(crownGeometry, crownMaterial);
                     crown.position.set(0, 0.8, 0);
+                    crown.userData.isCrown = true;
                     this.otter.add(crown);
                 }
             }
@@ -480,6 +510,11 @@
             startGame() {
                 this.isPlaying = true;
                 document.getElementById('home-screen').style.display = 'none';
+                // Start the game loop if it's not already running
+                if (!this.gameLoopRunning) {
+                    this.gameLoopRunning = true;
+                    this.animate();
+                }
             }
 
             showGameOver() {
@@ -569,19 +604,6 @@
                 this.renderer.render(this.scene, this.camera);
             }
         }
-
-        // Initialize game when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('game-container');
-            if (container) {
-                const game = new OtterRiverGame(container);
-                
-                // Add start button listener
-                document.getElementById('start-button').addEventListener('click', () => {
-                    game.startGame();
-                });
-            }
-        });
     </script>
 </body>
 </html> 
