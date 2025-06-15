@@ -1786,36 +1786,100 @@
                         break;
 
                     case 'iceberg':
-                        // Add snow cap and icicles
-                        const snowCapGeometry = new THREE.ConeGeometry(0.45, 0.3, 4);
-                        const snowMaterial = new THREE.MeshStandardMaterial({
-                            color: 0xFFFFFF,
-                            roughness: 0.3,
-                            metalness: 0.1
+                        // Create shark body
+                        const sharkBodyGeometry = new THREE.CapsuleGeometry(0.2, 1.0, 16, 32);
+                        const sharkMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x808080,
+                            roughness: 0.7,
+                            metalness: 0.3
                         });
-                        const snowCap = new THREE.Mesh(snowCapGeometry, snowMaterial);
-                        snowCap.position.y = 0.6;
-                        obstacle.add(snowCap);
+                        const sharkBody = new THREE.Mesh(sharkBodyGeometry, sharkMaterial);
+                        sharkBody.rotation.x = Math.PI / 2;
+                        sharkBody.rotation.z = -Math.PI / 2;
+                        obstacle.add(sharkBody);
 
-                        // Add icicles
-                        for (let i = 0; i < 4; i++) {
-                            const icicleGeometry = new THREE.ConeGeometry(0.05, 0.2, 4);
-                            const icicleMaterial = new THREE.MeshStandardMaterial({
-                                color: 0xADD8E6,
-                                roughness: 0.2,
-                                metalness: 0.3,
-                                transparent: true,
-                                opacity: 0.8
-                            });
-                            const icicle = new THREE.Mesh(icicleGeometry, icicleMaterial);
-                            const angle = (i / 4) * Math.PI * 2;
-                            icicle.position.set(
-                                Math.cos(angle) * 0.3,
-                                0.3,
-                                Math.sin(angle) * 0.3
-                            );
-                            icicle.rotation.x = Math.PI;
-                            obstacle.add(icicle);
+                        // Create shark head
+                        const sharkHeadGeometry = new THREE.ConeGeometry(0.25, 0.5, 8);
+                        const sharkHead = new THREE.Mesh(sharkHeadGeometry, sharkMaterial);
+                        sharkHead.position.set(-0.6, 0, 0);
+                        sharkHead.rotation.z = Math.PI / 2;
+                        obstacle.add(sharkHead);
+
+                        // Create dorsal fin
+                        const dorsalFinGeometry = new THREE.Shape();
+                        dorsalFinGeometry.moveTo(0, 0);
+                        dorsalFinGeometry.lineTo(0.2, 0.4);
+                        dorsalFinGeometry.lineTo(0.4, 0);
+                        dorsalFinGeometry.lineTo(0, 0);
+                        const dorsalFinExtrudeSettings = {
+                            steps: 2,
+                            depth: 0.05,
+                            bevelEnabled: true,
+                            bevelThickness: 0.02,
+                            bevelSize: 0.02,
+                            bevelSegments: 5
+                        };
+                        const dorsalFin = new THREE.Mesh(
+                            new THREE.ExtrudeGeometry(dorsalFinGeometry, dorsalFinExtrudeSettings),
+                            sharkMaterial
+                        );
+                        dorsalFin.position.set(0, 0.2, 0);
+                        dorsalFin.rotation.x = Math.PI / 2;
+                        obstacle.add(dorsalFin);
+
+                        // Create pectoral fins
+                        const pectoralFinGeometry = new THREE.Shape();
+                        pectoralFinGeometry.moveTo(0, 0);
+                        pectoralFinGeometry.lineTo(0.3, 0.2);
+                        pectoralFinGeometry.lineTo(0.3, -0.2);
+                        pectoralFinGeometry.lineTo(0, 0);
+                        const pectoralFin = new THREE.Mesh(
+                            new THREE.ExtrudeGeometry(pectoralFinGeometry, dorsalFinExtrudeSettings),
+                            sharkMaterial
+                        );
+                        pectoralFin.position.set(0, 0, 0.2);
+                        pectoralFin.rotation.z = Math.PI / 2;
+                        obstacle.add(pectoralFin);
+
+                        // Create tail fin
+                        const tailFinGeometry = new THREE.Shape();
+                        tailFinGeometry.moveTo(0, 0);
+                        tailFinGeometry.lineTo(0.4, 0.3);
+                        tailFinGeometry.lineTo(0.4, -0.3);
+                        tailFinGeometry.lineTo(0, 0);
+                        const tailFin = new THREE.Mesh(
+                            new THREE.ExtrudeGeometry(tailFinGeometry, dorsalFinExtrudeSettings),
+                            sharkMaterial
+                        );
+                        tailFin.position.set(0.6, 0, 0);
+                        tailFin.rotation.z = Math.PI / 2;
+                        obstacle.add(tailFin);
+
+                        // Create eyes
+                        const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                        const eyeMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x000000,
+                            roughness: 0.3,
+                            metalness: 0.8
+                        });
+                        const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                        leftEye.position.set(-0.7, 0.1, 0.1);
+                        obstacle.add(leftEye);
+                        const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                        rightEye.position.set(-0.7, 0.1, -0.1);
+                        obstacle.add(rightEye);
+
+                        // Create gills
+                        const gillGeometry = new THREE.BoxGeometry(0.05, 0.1, 0.1);
+                        const gillMaterial = new THREE.MeshStandardMaterial({
+                            color: 0xFF0000,
+                            roughness: 0.7,
+                            metalness: 0.3
+                        });
+                        for (let i = 0; i < 3; i++) {
+                            const gill = new THREE.Mesh(gillGeometry, gillMaterial);
+                            gill.position.set(-0.4, 0, 0.2 + i * 0.1);
+                            obstacle.add(gill);
                         }
                         break;
 
