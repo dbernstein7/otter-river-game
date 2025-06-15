@@ -1638,11 +1638,11 @@
                           metalness: 0.1
                       }),
                       yPos: -0.2, scale: 1.0 },
-                    { type: 'iceberg', chance: 0.15, geometry: new THREE.ConeGeometry(0.4, 1.2, 4),
+                    { type: 'shark', chance: 0.15, geometry: new THREE.CapsuleGeometry(0.2, 1.0, 16, 32),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0xADD8E6,
-                          roughness: 0.3, 
-                          metalness: 0.1
+                          color: 0x808080,
+                          roughness: 0.7, 
+                          metalness: 0.3
                       }),
                       yPos: -0.1, scale: 1.0 },
                     { type: 'debris', chance: 0.1, geometry: new THREE.TetrahedronGeometry(0.4, 0),
@@ -1785,7 +1785,7 @@
                         }
                         break;
 
-                    case 'iceberg':
+                    case 'shark':
                         // Create shark body
                         const sharkBodyGeometry = new THREE.CapsuleGeometry(0.2, 1.0, 16, 32);
                         const sharkMaterial = new THREE.MeshStandardMaterial({
