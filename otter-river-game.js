@@ -18,22 +18,41 @@ class OtterRiverGame {
     }
 
     init() {
-        // Setup renderer
+        // Renderer setup
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x87CEEB); // Sky blue background
-        this.container.appendChild(this.renderer.domElement);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.0;
+        document.body.appendChild(this.renderer.domElement);
 
         // Setup camera
         this.camera.position.set(0, 5, 10);
         this.camera.lookAt(0, 0, 0);
 
         // Add lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(0, 10, 5);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 50;
+        directionalLight.shadow.camera.left = -20;
+        directionalLight.shadow.camera.right = 20;
+        directionalLight.shadow.camera.top = 20;
+        directionalLight.shadow.camera.bottom = -20;
         this.scene.add(directionalLight);
+
+        // Add a subtle point light for better depth
+        const pointLight = new THREE.PointLight(0xffffff, 0.5);
+        pointLight.position.set(0, 10, 0);
+        this.scene.add(pointLight);
 
         // Create river
         this.createRiver();
@@ -50,15 +69,35 @@ class OtterRiverGame {
     }
 
     createRiver() {
-        const riverGeometry = new THREE.PlaneGeometry(10, 100);
-        const riverMaterial = new THREE.MeshPhongMaterial({
+        const riverGeometry = new THREE.PlaneGeometry(20, 100);
+        const riverMaterial = new THREE.MeshStandardMaterial({
             color: 0x0077be,
-            side: THREE.DoubleSide
+            metalness: 0.1,
+            roughness: 0.2,
+            transparent: true,
+            opacity: 0.8
         });
         this.river = new THREE.Mesh(riverGeometry, riverMaterial);
         this.river.rotation.x = -Math.PI / 2;
         this.river.position.z = -50;
+        this.river.receiveShadow = true;
         this.scene.add(this.river);
+
+        // Add water animation
+        const waterGeometry = new THREE.PlaneGeometry(20, 100, 32, 32);
+        const waterMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0077be,
+            metalness: 0.3,
+            roughness: 0.1,
+            transparent: true,
+            opacity: 0.6
+        });
+        const water = new THREE.Mesh(waterGeometry, waterMaterial);
+        water.rotation.x = -Math.PI / 2;
+        water.position.z = -50;
+        water.position.y = 0.1;
+        water.receiveShadow = true;
+        this.scene.add(water);
     }
 
     loadOtter() {
@@ -160,7 +199,174 @@ class OtterRiverGame {
         }
 
         this.updateObstacles();
+
+        // Animate water
+        const time = Date.now() * 0.001;
+        const water = this.scene.getObjectByName('water');
+        if (water) {
+            water.geometry.vertices?.forEach((vertex, i) => {
+                vertex.z = Math.sin(time + i * 0.1) * 0.1;
+            });
+            water.geometry.verticesNeedUpdate = true;
+        }
+
+        this.updateParticles();
         this.renderer.render(this.scene, this.camera);
+    }
+
+    createEnvironment() {
+        // Add skybox
+        const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
+        const skyboxMaterials = [
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // right
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // left
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // top
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // bottom
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide }), // front
+            new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide })  // back
+        ];
+        const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+        this.scene.add(skybox);
+
+        // Add ground
+        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0x7CFC00,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.5;
+        ground.receiveShadow = true;
+        this.scene.add(ground);
+
+        // Add trees
+        for (let i = 0; i < 10; i++) {
+            const tree = this.createTree();
+            tree.position.x = (Math.random() - 0.5) * 40;
+            tree.position.z = -Math.random() * 80;
+            this.scene.add(tree);
+        }
+
+        // Add rocks
+        for (let i = 0; i < 15; i++) {
+            const rock = this.createRock();
+            rock.position.x = (Math.random() - 0.5) * 30;
+            rock.position.z = -Math.random() * 90;
+            this.scene.add(rock);
+        }
+    }
+
+    createTree() {
+        const tree = new THREE.Group();
+
+        // Tree trunk
+        const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 4, 8);
+        const trunkMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8B4513,
+            roughness: 0.9
+        });
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.y = 2;
+        trunk.castShadow = true;
+        tree.add(trunk);
+
+        // Tree top
+        const topGeometry = new THREE.ConeGeometry(2, 4, 8);
+        const topMaterial = new THREE.MeshStandardMaterial({
+            color: 0x228B22,
+            roughness: 0.8
+        });
+        const top = new THREE.Mesh(topGeometry, topMaterial);
+        top.position.y = 5;
+        top.castShadow = true;
+        tree.add(top);
+
+        return tree;
+    }
+
+    createRock() {
+        const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 0.5 + 0.5);
+        const rockMaterial = new THREE.MeshStandardMaterial({
+            color: 0x808080,
+            roughness: 0.9,
+            metalness: 0.1
+        });
+        const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+        rock.rotation.set(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI,
+            Math.random() * Math.PI
+        );
+        rock.castShadow = true;
+        return rock;
+    }
+
+    createWaterSplash(x, z) {
+        const particleCount = 20;
+        const particles = new THREE.Group();
+
+        for (let i = 0; i < particleCount; i++) {
+            const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const particleMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.8
+            });
+            const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+            
+            // Random initial position
+            particle.position.set(
+                x + (Math.random() - 0.5) * 0.5,
+                0.1,
+                z + (Math.random() - 0.5) * 0.5
+            );
+            
+            // Random velocity
+            particle.userData.velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.2,
+                Math.random() * 0.3,
+                (Math.random() - 0.5) * 0.2
+            );
+            
+            particle.userData.life = 1.0; // Life in seconds
+            particles.add(particle);
+        }
+
+        this.scene.add(particles);
+        return particles;
+    }
+
+    updateParticles() {
+        this.scene.children.forEach(child => {
+            if (child instanceof THREE.Group && child.userData.isParticleGroup) {
+                child.children.forEach(particle => {
+                    particle.userData.life -= 0.016; // Assuming 60fps
+                    if (particle.userData.life <= 0) {
+                        child.remove(particle);
+                    } else {
+                        particle.position.add(particle.userData.velocity);
+                        particle.userData.velocity.y -= 0.01; // Gravity
+                        particle.material.opacity = particle.userData.life;
+                    }
+                });
+                
+                if (child.children.length === 0) {
+                    this.scene.remove(child);
+                }
+            }
+        });
+    }
+
+    moveOtter(direction) {
+        // ... existing movement code ...
+        
+        // Create splash effect when moving
+        if (direction !== 0) {
+            const splash = this.createWaterSplash(this.otter.position.x, this.otter.position.z);
+            splash.userData.isParticleGroup = true;
+        }
     }
 }
 
