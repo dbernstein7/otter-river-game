@@ -844,7 +844,6 @@
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.3;
-                body.rotation.z = Math.PI / 2;  // Rotate body to be on its side
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -857,7 +856,6 @@
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
                 head.position.set(0, 0.8, -0.7);  // Adjusted position
-                head.rotation.z = Math.PI / 2;  // Match body rotation
                 head.castShadow = true;
                 this.otter.add(head);
 
@@ -871,7 +869,6 @@
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
                 snout.position.set(0, 0.8, -0.9);  // Adjusted position
                 snout.rotation.x = Math.PI / 2;
-                snout.rotation.z = Math.PI / 2;  // Match body rotation
                 snout.castShadow = true;
                 this.otter.add(snout);
 
@@ -884,11 +881,9 @@
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                 leftEye.position.set(0.12, 0.9, -0.8);
-                leftEye.rotation.z = Math.PI / 2;  // Match body rotation
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                 rightEye.position.set(-0.12, 0.9, -0.8);
-                rightEye.rotation.z = Math.PI / 2;  // Match body rotation
                 this.otter.add(rightEye);
 
                 // Create ears
@@ -900,11 +895,9 @@
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
                 leftEar.position.set(0.2, 1, -0.7);
-                leftEar.rotation.z = Math.PI / 2;  // Match body rotation
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
                 rightEar.position.set(-0.2, 1, -0.7);
-                rightEar.rotation.z = Math.PI / 2;  // Match body rotation
                 this.otter.add(rightEar);
 
                 // Create tail
@@ -918,7 +911,7 @@
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
                 tail.position.set(0, 0.3, 0.7);  // Moved closer to body
                 tail.rotation.x = Math.PI / 2;  // Horizontal
-                tail.rotation.z = Math.PI;  // Rotate to connect with body
+                tail.rotation.z = Math.PI / 2;  // Rotate to connect with body
                 tail.scale.set(1, 0.3, 1);  // Stretch to make it oval
                 tail.castShadow = true;
                 this.otter.add(tail);
@@ -932,22 +925,18 @@
                 });
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
                 frontLeftLeg.position.set(0.25, 0.2, -0.3);
-                frontLeftLeg.rotation.z = Math.PI / 2;  // Match body rotation
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
                 frontRightLeg.position.set(-0.25, 0.2, -0.3);
-                frontRightLeg.rotation.z = Math.PI / 2;  // Match body rotation
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
                 backLeftLeg.position.set(0.25, 0.2, 0.3);
-                backLeftLeg.rotation.z = Math.PI / 2;  // Match body rotation
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
                 backRightLeg.position.set(-0.25, 0.2, 0.3);
-                backRightLeg.rotation.z = Math.PI / 2;  // Match body rotation
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
             }
