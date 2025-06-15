@@ -898,15 +898,15 @@
                 this.otter.add(rightEar);
 
                 // Create tail
-                const tailGeometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 8);  // Flatter, longer tail
+                const tailGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.3);  // Flat box for tail
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.position.set(0, 0.3, 0.9);  // Adjusted position
-                tail.rotation.x = 0;  // No angle
+                tail.position.set(0, 0.3, 0.9);
+                tail.rotation.x = Math.PI / 2;  // Rotate to make it horizontal
                 tail.castShadow = true;
                 this.otter.add(tail);
 
