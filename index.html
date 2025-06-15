@@ -254,8 +254,12 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
+        let gameInstance = null; // Store game instance globally
+
         // Add collapsible functionality
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded');
+            
             const coll = document.getElementsByClassName("collapsible");
             for (let i = 0; i < coll.length; i++) {
                 coll[i].addEventListener("click", function() {
@@ -274,23 +278,41 @@
             // Initialize game
             const container = document.getElementById('game-container');
             if (container) {
-                const game = new OtterRiverGame(container);
+                console.log('Container found, initializing game');
+                gameInstance = new OtterRiverGame(container);
                 
                 // Add start button listener
-                document.getElementById('start-button').addEventListener('click', () => {
-                    game.startGame();
-                });
+                const startButton = document.getElementById('start-button');
+                if (startButton) {
+                    console.log('Start button found, adding click listener');
+                    startButton.addEventListener('click', () => {
+                        console.log('Start button clicked');
+                        if (gameInstance) {
+                            gameInstance.startGame();
+                        }
+                    });
+                } else {
+                    console.error('Start button not found');
+                }
 
                 // Add wear hat button listener
-                document.querySelector('.unlockable button').addEventListener('click', () => {
-                    game.wearHat();
-                });
+                const hatButton = document.querySelector('.unlockable button');
+                if (hatButton) {
+                    hatButton.addEventListener('click', () => {
+                        if (gameInstance) {
+                            gameInstance.wearHat();
+                        }
+                    });
+                }
+            } else {
+                console.error('Game container not found');
             }
         });
 
         // Game code
         class OtterRiverGame {
             constructor(container) {
+                console.log('Game constructor called');
                 this.container = container;
                 this.scene = new THREE.Scene();
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -311,11 +333,13 @@
                 this.collectibleSpawnRate = 0.01;
                 this.topScores = JSON.parse(localStorage.getItem('topScores')) || [];
                 this.unlockedItems = JSON.parse(localStorage.getItem('unlockedItems')) || ['topHat'];
+                this.gameLoopRunning = false;
                 
                 this.init();
             }
 
             init() {
+                console.log('Game init called');
                 // Renderer setup
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -370,8 +394,8 @@
                 // Update top scores display
                 this.updateTopScores();
 
-                // Start game loop
-                this.animate();
+                // Start initial render
+                this.renderer.render(this.scene, this.camera);
             }
 
             updateTopScores() {
@@ -508,10 +532,13 @@
             }
 
             startGame() {
+                console.log('Start game called');
                 this.isPlaying = true;
                 document.getElementById('home-screen').style.display = 'none';
+                
                 // Start the game loop if it's not already running
                 if (!this.gameLoopRunning) {
+                    console.log('Starting game loop');
                     this.gameLoopRunning = true;
                     this.animate();
                 }
@@ -545,7 +572,10 @@
             }
 
             animate() {
-                if (this.gameOver) return;
+                if (this.gameOver) {
+                    console.log('Game over, stopping animation');
+                    return;
+                }
 
                 requestAnimationFrame(this.animate.bind(this));
 
