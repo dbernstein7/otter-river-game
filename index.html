@@ -547,15 +547,15 @@
 
             spawnCollectible() {
                 const types = [
-                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.4 },
-                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.2 },
-                    { type: 'goldenFish', points: 5, color: 0xFFD700, chance: 0.15 },
-                    { type: 'emeraldFish', points: 7, color: 0x00FF00, chance: 0.1 },
-                    { type: 'diamondFish', points: 10, color: 0x00FFFF, chance: 0.05 },
-                    { type: 'clam', points: 15, color: 0xFFFFFF, chance: 0.05 },
-                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.02 },
-                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.02 },
-                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.01 }
+                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.4, shape: 'fish' },
+                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.2, shape: 'fish' },
+                    { type: 'goldenFish', points: 5, color: 0xFFD700, chance: 0.15, shape: 'fish' },
+                    { type: 'emeraldFish', points: 7, color: 0x00FF00, chance: 0.1, shape: 'fish' },
+                    { type: 'diamondFish', points: 10, color: 0x00FFFF, chance: 0.05, shape: 'fish' },
+                    { type: 'clam', points: 15, color: 0xFFFFFF, chance: 0.05, shape: 'clam' },
+                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.02, shape: 'seahorse' },
+                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.02, shape: 'jellyfish' },
+                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.01, shape: 'starfish' }
                 ];
 
                 // Adjust chances based on level
@@ -572,16 +572,40 @@
                     }
                 }
 
-                const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                let geometry;
+                switch(selectedType.shape) {
+                    case 'fish':
+                        geometry = new THREE.ConeGeometry(0.3, 0.8, 8);
+                        break;
+                    case 'clam':
+                        geometry = new THREE.SphereGeometry(0.4, 16, 16);
+                        break;
+                    case 'seahorse':
+                        geometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 8);
+                        break;
+                    case 'jellyfish':
+                        geometry = new THREE.SphereGeometry(0.3, 16, 16);
+                        break;
+                    case 'starfish':
+                        geometry = new THREE.StarGeometry(0.4, 5, 0.2);
+                        break;
+                    default:
+                        geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                }
+
                 const material = new THREE.MeshStandardMaterial({
                     color: selectedType.color,
                     roughness: 0.7,
-                    metalness: 0.3
+                    metalness: 0.3,
+                    emissive: selectedType.color,
+                    emissiveIntensity: 0.2
                 });
+
                 const collectible = new THREE.Mesh(geometry, material);
                 collectible.position.x = (Math.random() - 0.5) * 12;
                 collectible.position.z = -30;
-                collectible.position.y = -0.3;  // Lower collectible position
+                collectible.position.y = -0.3;
+                collectible.rotation.y = Math.PI / 2;  // Face forward
                 collectible.userData = {
                     type: selectedType.type,
                     points: selectedType.points
@@ -804,11 +828,12 @@
             loadOtter() {
                 // Create a group to hold all parts of the otter
                 this.otter = new THREE.Group();
-                this.otter.position.y = -0.3;  // Lower otter position
+                this.otter.position.y = -0.3;
+                this.otter.scale.set(0.8, 0.8, 0.8);  // Make otter smaller
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                const bodyGeometry = new THREE.CapsuleGeometry(0.4, 0.8, 4, 8);  // Smaller body
                 const bodyMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
@@ -820,92 +845,92 @@
                 this.otter.add(body);
 
                 // Create head
-                const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+                const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);  // Smaller head
                 const headMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.set(0, 1.1, -1.1);
+                head.position.set(0, 0.9, -0.9);  // Adjusted position
                 head.castShadow = true;
                 this.otter.add(head);
 
                 // Create snout
-                const snoutGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+                const snoutGeometry = new THREE.ConeGeometry(0.15, 0.3, 8);  // Smaller snout
                 const snoutMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-                snout.position.set(0, 1.1, -1.4);
+                snout.position.set(0, 0.9, -1.1);  // Adjusted position
                 snout.rotation.x = Math.PI / 2;
                 snout.castShadow = true;
                 this.otter.add(snout);
 
                 // Create eyes
-                const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);  // Smaller eyes
                 const eyeMaterial = new THREE.MeshStandardMaterial({
                     color: 0x000000,
                     roughness: 0.3,
                     metalness: 0.8
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(0.2, 1.2, -1.2);
+                leftEye.position.set(0.15, 1, -1);
                 this.otter.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(-0.2, 1.2, -1.2);
+                rightEye.position.set(-0.15, 1, -1);
                 this.otter.add(rightEye);
 
                 // Create ears
-                const earGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                const earGeometry = new THREE.SphereGeometry(0.12, 8, 8);  // Smaller ears
                 const earMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-                leftEar.position.set(0.3, 1.4, -1);
+                leftEar.position.set(0.25, 1.1, -0.8);
                 this.otter.add(leftEar);
                 const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-                rightEar.position.set(-0.3, 1.4, -1);
+                rightEar.position.set(-0.25, 1.1, -0.8);
                 this.otter.add(rightEar);
 
                 // Create tail
-                const tailGeometry = new THREE.CapsuleGeometry(0.3, 1, 4, 8);
+                const tailGeometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 8);  // Flatter, longer tail
                 const tailMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-                tail.position.set(0, 0.5, 1.1);
-                tail.rotation.x = Math.PI / 4;
+                tail.position.set(0, 0.3, 0.9);  // Adjusted position
+                tail.rotation.x = 0;  // No angle
                 tail.castShadow = true;
                 this.otter.add(tail);
 
                 // Create legs
-                const legGeometry = new THREE.CapsuleGeometry(0.2, 0.6, 4, 8);
+                const legGeometry = new THREE.CapsuleGeometry(0.15, 0.5, 4, 8);  // Smaller legs
                 const legMaterial = new THREE.MeshStandardMaterial({
                     color: 0x8B4513,
                     roughness: 0.7,
                     metalness: 0.2
                 });
                 const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontLeftLeg.position.set(0.4, 0.3, -0.5);
+                frontLeftLeg.position.set(0.3, 0.2, -0.4);
                 frontLeftLeg.castShadow = true;
                 this.otter.add(frontLeftLeg);
                 const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                frontRightLeg.position.set(-0.4, 0.3, -0.5);
+                frontRightLeg.position.set(-0.3, 0.2, -0.4);
                 frontRightLeg.castShadow = true;
                 this.otter.add(frontRightLeg);
                 const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backLeftLeg.position.set(0.4, 0.3, 0.5);
+                backLeftLeg.position.set(0.3, 0.2, 0.4);
                 backLeftLeg.castShadow = true;
                 this.otter.add(backLeftLeg);
                 const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-                backRightLeg.position.set(-0.4, 0.3, 0.5);
+                backRightLeg.position.set(-0.3, 0.2, 0.4);
                 backRightLeg.castShadow = true;
                 this.otter.add(backRightLeg);
             }
