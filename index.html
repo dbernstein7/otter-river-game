@@ -1169,12 +1169,77 @@
             spawnObstacle() {
                 // Define obstacle types with their properties
                 const obstacleTypes = [
-                    { type: 'rock', chance: 0.3, geometry: new THREE.DodecahedronGeometry(0.5, 1), 
-                      material: new THREE.MeshStandardMaterial({ 
-                          color: 0x808080, // Back to original color
-                          roughness: 0.8, 
-                          metalness: 0.2
-                      }),
+                    { type: 'rock', chance: 0.3, 
+                      createGeometry: () => {
+                          // Create a more realistic rock shape using multiple spheres
+                          const rockGroup = new THREE.Group();
+                          
+                          // Main rock body
+                          const mainRock = new THREE.Mesh(
+                              new THREE.SphereGeometry(0.4, 8, 8),
+                              new THREE.MeshStandardMaterial({
+                                  color: 0x808080,
+                                  roughness: 0.9,
+                                  metalness: 0.1
+                              })
+                          );
+                          rockGroup.add(mainRock);
+                          
+                          // Add smaller rock pieces
+                          for (let i = 0; i < 5; i++) {
+                              const size = 0.15 + Math.random() * 0.2;
+                              const rockPiece = new THREE.Mesh(
+                                  new THREE.SphereGeometry(size, 6, 6),
+                                  new THREE.MeshStandardMaterial({
+                                      color: 0x808080,
+                                      roughness: 0.9,
+                                      metalness: 0.1
+                                  })
+                              );
+                              
+                              // Random position around main rock
+                              const angle = Math.random() * Math.PI * 2;
+                              const radius = 0.3 + Math.random() * 0.2;
+                              rockPiece.position.set(
+                                  Math.cos(angle) * radius,
+                                  (Math.random() - 0.5) * 0.4,
+                                  Math.sin(angle) * radius
+                              );
+                              
+                              // Random rotation
+                              rockPiece.rotation.set(
+                                  Math.random() * Math.PI,
+                                  Math.random() * Math.PI,
+                                  Math.random() * Math.PI
+                              );
+                              
+                              rockGroup.add(rockPiece);
+                          }
+                          
+                          // Add surface details
+                          for (let i = 0; i < 8; i++) {
+                              const detail = new THREE.Mesh(
+                                  new THREE.SphereGeometry(0.05 + Math.random() * 0.05, 4, 4),
+                                  new THREE.MeshStandardMaterial({
+                                      color: 0x606060,
+                                      roughness: 1.0,
+                                      metalness: 0.0
+                                  })
+                              );
+                              
+                              const angle = Math.random() * Math.PI * 2;
+                              const radius = 0.35 + Math.random() * 0.1;
+                              detail.position.set(
+                                  Math.cos(angle) * radius,
+                                  (Math.random() - 0.5) * 0.4,
+                                  Math.sin(angle) * radius
+                              );
+                              
+                              rockGroup.add(detail);
+                          }
+                          
+                          return rockGroup;
+                      },
                       yPos: -0.3, scale: 1.0 },
                     { type: 'pole', chance: 0.2, geometry: new THREE.CylinderGeometry(0.15, 0.15, 2, 8),
                       material: new THREE.MeshStandardMaterial({ 
@@ -1228,7 +1293,13 @@
                 }
 
                 // Create the obstacle
-                const obstacle = new THREE.Mesh(selectedType.geometry, selectedType.material);
+                let obstacle;
+                if (selectedType.type === 'rock') {
+                    obstacle = selectedType.createGeometry();
+                } else {
+                    obstacle = new THREE.Mesh(selectedType.geometry, selectedType.material);
+                }
+                
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
                 obstacle.position.y = selectedType.yPos;
@@ -1250,178 +1321,165 @@
                 obstacle.add(glow);
 
                 // Add special behaviors and features for each obstacle type
-                switch(selectedType.type) {
-                    case 'rock':
-                        // Add moss texture and cracks
-                        const mossGeometry = new THREE.SphereGeometry(0.52, 8, 8);
-                        const mossMaterial = new THREE.MeshStandardMaterial({
-                            color: 0x2E8B57,
-                            roughness: 0.9,
-                            metalness: 0.1,
-                            emissive: 0x1B4D3E,
-                            emissiveIntensity: 0.2
-                        });
-                        const moss = new THREE.Mesh(mossGeometry, mossMaterial);
-                        moss.position.y = 0.1;
-                        obstacle.add(moss);
-                        break;
+                if (selectedType.type !== 'rock') {
+                    switch(selectedType.type) {
+                        case 'pole':
+                            // Add rope wrapping
+                            const ropeGeometry = new THREE.TorusGeometry(0.17, 0.03, 8, 16);
+                            const ropeMaterial = new THREE.MeshStandardMaterial({
+                                color: 0x8B4513,
+                                roughness: 0.9,
+                                metalness: 0.1
+                            });
+                            for (let i = 0; i < 3; i++) {
+                                const rope = new THREE.Mesh(ropeGeometry, ropeMaterial);
+                                rope.position.y = -0.5 + i * 0.5;
+                                rope.rotation.x = Math.PI / 2;
+                                obstacle.add(rope);
+                            }
+                            break;
 
-                    case 'pole':
-                        // Add rope wrapping
-                        const ropeGeometry = new THREE.TorusGeometry(0.17, 0.03, 8, 16);
-                        const ropeMaterial = new THREE.MeshStandardMaterial({
-                            color: 0x8B4513,
-                            roughness: 0.9,
-                            metalness: 0.1
-                        });
-                        for (let i = 0; i < 3; i++) {
-                            const rope = new THREE.Mesh(ropeGeometry, ropeMaterial);
-                            rope.position.y = -0.5 + i * 0.5;
-                            rope.rotation.x = Math.PI / 2;
-                            obstacle.add(rope);
-                        }
-                        break;
-
-                    case 'log':
-                        // Add bark texture and knots
-                        const barkGeometry = new THREE.CylinderGeometry(0.22, 0.22, 1.5, 8);
-                        const barkMaterial = new THREE.MeshStandardMaterial({
-                            color: 0x654321,
-                            roughness: 1.0,
-                            metalness: 0.0
-                        });
-                        const bark = new THREE.Mesh(barkGeometry, barkMaterial);
-                        obstacle.add(bark);
-                        
-                        // Add knots
-                        for (let i = 0; i < 3; i++) {
-                            const knotGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-                            const knotMaterial = new THREE.MeshStandardMaterial({
-                                color: 0x4B2A0A,
+                        case 'log':
+                            // Add bark texture and knots
+                            const barkGeometry = new THREE.CylinderGeometry(0.22, 0.22, 1.5, 8);
+                            const barkMaterial = new THREE.MeshStandardMaterial({
+                                color: 0x654321,
                                 roughness: 1.0,
                                 metalness: 0.0
                             });
-                            const knot = new THREE.Mesh(knotGeometry, knotMaterial);
-                            knot.position.set(
-                                (Math.random() - 0.5) * 0.3,
-                                (Math.random() - 0.5) * 1.2,
-                                0.2
-                            );
-                            obstacle.add(knot);
-                        }
-                        break;
+                            const bark = new THREE.Mesh(barkGeometry, barkMaterial);
+                            obstacle.add(bark);
+                            
+                            // Add knots
+                            for (let i = 0; i < 3; i++) {
+                                const knotGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                                const knotMaterial = new THREE.MeshStandardMaterial({
+                                    color: 0x4B2A0A,
+                                    roughness: 1.0,
+                                    metalness: 0.0
+                                });
+                                const knot = new THREE.Mesh(knotGeometry, knotMaterial);
+                                knot.position.set(
+                                    (Math.random() - 0.5) * 0.3,
+                                    (Math.random() - 0.5) * 1.2,
+                                    0.2
+                                );
+                                obstacle.add(knot);
+                            }
+                            break;
 
-                    case 'iceberg':
-                        // Add snow cap and icicles
-                        const snowCapGeometry = new THREE.ConeGeometry(0.45, 0.3, 4);
-                        const snowMaterial = new THREE.MeshStandardMaterial({
-                            color: 0xFFFFFF,
-                            roughness: 0.3,
-                            metalness: 0.1,
-                            emissive: 0xFFFFFF,
-                            emissiveIntensity: 0.2
-                        });
-                        const snowCap = new THREE.Mesh(snowCapGeometry, snowMaterial);
-                        snowCap.position.y = 0.6;
-                        obstacle.add(snowCap);
+                        case 'iceberg':
+                            // Add snow cap and icicles
+                            const snowCapGeometry = new THREE.ConeGeometry(0.45, 0.3, 4);
+                            const snowMaterial = new THREE.MeshStandardMaterial({
+                                color: 0xFFFFFF,
+                                roughness: 0.3,
+                                metalness: 0.1,
+                                emissive: 0xFFFFFF,
+                                emissiveIntensity: 0.2
+                            });
+                            const snowCap = new THREE.Mesh(snowCapGeometry, snowMaterial);
+                            snowCap.position.y = 0.6;
+                            obstacle.add(snowCap);
 
-                        // Add icicles
-                        for (let i = 0; i < 4; i++) {
-                            const icicleGeometry = new THREE.ConeGeometry(0.05, 0.2, 4);
-                            const icicleMaterial = new THREE.MeshStandardMaterial({
-                                color: 0xADD8E6,
-                                roughness: 0.2,
+                            // Add icicles
+                            for (let i = 0; i < 4; i++) {
+                                const icicleGeometry = new THREE.ConeGeometry(0.05, 0.2, 4);
+                                const icicleMaterial = new THREE.MeshStandardMaterial({
+                                    color: 0xADD8E6,
+                                    roughness: 0.2,
+                                    metalness: 0.3,
+                                    transparent: true,
+                                    opacity: 0.8
+                                });
+                                const icicle = new THREE.Mesh(icicleGeometry, icicleMaterial);
+                                const angle = (i / 4) * Math.PI * 2;
+                                icicle.position.set(
+                                    Math.cos(angle) * 0.3,
+                                    0.3,
+                                    Math.sin(angle) * 0.3
+                                );
+                                icicle.rotation.x = Math.PI;
+                                obstacle.add(icicle);
+                            }
+                            break;
+
+                        case 'debris':
+                            // Add rust spots and sharp edges
+                            const rustGeometry = new THREE.SphereGeometry(0.42, 8, 8);
+                            const rustMaterial = new THREE.MeshStandardMaterial({
+                                color: 0x8B0000,
+                                roughness: 0.9,
                                 metalness: 0.3,
-                                transparent: true,
-                                opacity: 0.8
+                                emissive: 0x4B0000,
+                                emissiveIntensity: 0.2
                             });
-                            const icicle = new THREE.Mesh(icicleGeometry, icicleMaterial);
-                            const angle = (i / 4) * Math.PI * 2;
-                            icicle.position.set(
-                                Math.cos(angle) * 0.3,
-                                0.3,
-                                Math.sin(angle) * 0.3
-                            );
-                            icicle.rotation.x = Math.PI;
-                            obstacle.add(icicle);
-                        }
-                        break;
+                            const rust = new THREE.Mesh(rustGeometry, rustMaterial);
+                            obstacle.add(rust);
 
-                    case 'debris':
-                        // Add rust spots and sharp edges
-                        const rustGeometry = new THREE.SphereGeometry(0.42, 8, 8);
-                        const rustMaterial = new THREE.MeshStandardMaterial({
-                            color: 0x8B0000,
-                            roughness: 0.9,
-                            metalness: 0.3,
-                            emissive: 0x4B0000,
-                            emissiveIntensity: 0.2
-                        });
-                        const rust = new THREE.Mesh(rustGeometry, rustMaterial);
-                        obstacle.add(rust);
+                            // Add sharp edges
+                            for (let i = 0; i < 4; i++) {
+                                const edgeGeometry = new THREE.ConeGeometry(0.05, 0.2, 4);
+                                const edgeMaterial = new THREE.MeshStandardMaterial({
+                                    color: 0x696969,
+                                    roughness: 0.7,
+                                    metalness: 0.3
+                                });
+                                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                                const angle = (i / 4) * Math.PI * 2;
+                                edge.position.set(
+                                    Math.cos(angle) * 0.3,
+                                    Math.sin(angle) * 0.3,
+                                    0
+                                );
+                                edge.rotation.x = Math.PI / 2;
+                                edge.rotation.z = angle;
+                                obstacle.add(edge);
+                            }
+                            break;
 
-                        // Add sharp edges
-                        for (let i = 0; i < 4; i++) {
-                            const edgeGeometry = new THREE.ConeGeometry(0.05, 0.2, 4);
-                            const edgeMaterial = new THREE.MeshStandardMaterial({
-                                color: 0x696969,
-                                roughness: 0.7,
-                                metalness: 0.3
-                            });
-                            const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
-                            const angle = (i / 4) * Math.PI * 2;
-                            edge.position.set(
-                                Math.cos(angle) * 0.3,
-                                Math.sin(angle) * 0.3,
-                                0
-                            );
-                            edge.rotation.x = Math.PI / 2;
-                            edge.rotation.z = angle;
-                            obstacle.add(edge);
-                        }
-                        break;
-
-                    case 'floatingMine':
-                        // Add spikes and warning lights
-                        const spikeGeometry = new THREE.ConeGeometry(0.1, 0.2, 8);
-                        const spikeMaterial = new THREE.MeshStandardMaterial({ 
-                            color: 0x000000, 
-                            roughness: 0.5, 
-                            metalness: 0.5,
-                            emissive: 0xFF0000,
-                            emissiveIntensity: 0.5
-                        });
-                        for (let i = 0; i < 8; i++) {
-                            const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
-                            const angle = (i / 8) * Math.PI * 2;
-                            spike.position.set(
-                                Math.cos(angle) * 0.3,
-                                Math.sin(angle) * 0.3,
-                                0
-                            );
-                            spike.rotation.x = Math.PI / 2;
-                            spike.rotation.z = angle;
-                            obstacle.add(spike);
-                        }
-
-                        // Add warning lights
-                        for (let i = 0; i < 4; i++) {
-                            const lightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-                            const lightMaterial = new THREE.MeshBasicMaterial({
-                                color: 0xFF0000,
+                        case 'floatingMine':
+                            // Add spikes and warning lights
+                            const spikeGeometry = new THREE.ConeGeometry(0.1, 0.2, 8);
+                            const spikeMaterial = new THREE.MeshStandardMaterial({ 
+                                color: 0x000000, 
+                                roughness: 0.5, 
+                                metalness: 0.5,
                                 emissive: 0xFF0000,
-                                emissiveIntensity: 1.0
+                                emissiveIntensity: 0.5
                             });
-                            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-                            const angle = (i / 4) * Math.PI * 2;
-                            light.position.set(
-                                Math.cos(angle) * 0.3,
-                                Math.sin(angle) * 0.3,
-                                0
-                            );
-                            obstacle.add(light);
-                        }
-                        break;
+                            for (let i = 0; i < 8; i++) {
+                                const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                                const angle = (i / 8) * Math.PI * 2;
+                                spike.position.set(
+                                    Math.cos(angle) * 0.3,
+                                    Math.sin(angle) * 0.3,
+                                    0
+                                );
+                                spike.rotation.x = Math.PI / 2;
+                                spike.rotation.z = angle;
+                                obstacle.add(spike);
+                            }
+
+                            // Add warning lights
+                            for (let i = 0; i < 4; i++) {
+                                const lightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                                const lightMaterial = new THREE.MeshBasicMaterial({
+                                    color: 0xFF0000,
+                                    emissive: 0xFF0000,
+                                    emissiveIntensity: 1.0
+                                });
+                                const light = new THREE.Mesh(lightGeometry, lightMaterial);
+                                const angle = (i / 4) * Math.PI * 2;
+                                light.position.set(
+                                    Math.cos(angle) * 0.3,
+                                    Math.sin(angle) * 0.3,
+                                    0
+                                );
+                                obstacle.add(light);
+                            }
+                            break;
+                    }
                 }
 
                 // Add rotation animation for certain obstacles
