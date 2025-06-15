@@ -270,6 +270,54 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM Content Loaded');
             
+            // Initialize game first
+            const container = document.getElementById('game-container');
+            if (!container) {
+                console.error('Game container not found');
+                return;
+            }
+            
+            console.log('Container found, initializing game');
+            gameInstance = new OtterRiverGame(container);
+            console.log('Game instance created:', gameInstance);
+            
+            // Add start button listener
+            const startButton = document.getElementById('start-button');
+            if (!startButton) {
+                console.error('Start button not found');
+                return;
+            }
+            
+            console.log('Start button found, adding click listener');
+            
+            // Remove any existing listeners
+            const newStartButton = startButton.cloneNode(true);
+            startButton.parentNode.replaceChild(newStartButton, startButton);
+            
+            // Add new listeners with debug logging
+            newStartButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                console.log('Start button touched');
+                if (!gameInstance) {
+                    console.error('Game instance is null');
+                    return;
+                }
+                console.log('Starting game from touch event');
+                gameInstance.startGame();
+            });
+            
+            newStartButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Start button clicked');
+                if (!gameInstance) {
+                    console.error('Game instance is null');
+                    return;
+                }
+                console.log('Starting game from click event');
+                gameInstance.startGame();
+            });
+            
+            // Add collapsible functionality
             const coll = document.getElementsByClassName("collapsible");
             for (let i = 0; i < coll.length; i++) {
                 coll[i].addEventListener("click", function() {
@@ -283,61 +331,6 @@
                         content.classList.add("active");
                     }
                 });
-            }
-
-            // Initialize game
-            const container = document.getElementById('game-container');
-            if (container) {
-                console.log('Container found, initializing game');
-                gameInstance = new OtterRiverGame(container);
-                
-                // Add start button listener
-                const startButton = document.getElementById('start-button');
-                if (startButton) {
-                    console.log('Start button found, adding click listener');
-                    
-                    // Remove any existing listeners
-                    const newStartButton = startButton.cloneNode(true);
-                    startButton.parentNode.replaceChild(newStartButton, startButton);
-                    
-                    // Add new listeners
-                    newStartButton.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        console.log('Start button touched');
-                        if (gameInstance) {
-                            gameInstance.startGame();
-                        }
-                    });
-                    
-                    newStartButton.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        console.log('Start button clicked');
-                        if (gameInstance) {
-                            gameInstance.startGame();
-                        }
-                    });
-                } else {
-                    console.error('Start button not found');
-                }
-
-                // Add wear hat button listener
-                const hatButton = document.querySelector('.unlockable button');
-                if (hatButton) {
-                    hatButton.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        if (gameInstance) {
-                            gameInstance.wearHat();
-                        }
-                    });
-                    hatButton.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        if (gameInstance) {
-                            gameInstance.wearHat();
-                        }
-                    });
-                }
-            } else {
-                console.error('Game container not found');
             }
         });
 
@@ -367,7 +360,9 @@
                 this.unlockedItems = JSON.parse(localStorage.getItem('unlockedItems')) || ['topHat'];
                 this.gameLoopRunning = false;
                 
+                console.log('Initializing game...');
                 this.init();
+                console.log('Game initialized');
             }
 
             init() {
@@ -576,15 +571,22 @@
                 // Hide home screen
                 const homeScreen = document.getElementById('home-screen');
                 if (homeScreen) {
+                    console.log('Hiding home screen');
                     homeScreen.style.display = 'none';
+                } else {
+                    console.error('Home screen element not found');
                 }
                 
                 // Reset otter position
                 if (this.otter) {
+                    console.log('Resetting otter position');
                     this.otter.position.set(0, 0, 0);
+                } else {
+                    console.error('Otter not found');
                 }
                 
                 // Clear existing obstacles and collectibles
+                console.log('Clearing obstacles and collectibles');
                 this.obstacles.forEach(obstacle => this.scene.remove(obstacle));
                 this.obstacles = [];
                 this.collectibles.forEach(collectible => this.scene.remove(collectible));
@@ -593,7 +595,10 @@
                 // Update score display
                 const scoreElement = document.getElementById('score');
                 if (scoreElement) {
+                    console.log('Updating score display');
                     scoreElement.textContent = 'Score: 0';
+                } else {
+                    console.error('Score element not found');
                 }
                 
                 // Start the game loop if it's not already running
@@ -601,6 +606,8 @@
                     console.log('Starting game loop');
                     this.gameLoopRunning = true;
                     this.animate();
+                } else {
+                    console.log('Game loop already running');
                 }
             }
 
