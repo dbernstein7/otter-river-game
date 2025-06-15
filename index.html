@@ -188,7 +188,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            display: none;
+            display: block;  // Changed from 'none' to 'block'
         }
         #joystick-knob {
             width: 40px;
@@ -1329,27 +1329,15 @@
                 const joystickBase = document.getElementById('joystick-base');
                 const joystickKnob = document.getElementById('joystick-knob');
                 let isDragging = false;
-                let startX = 0;
-                let startY = 0;
-                let baseX = 0;
-                let baseY = 0;
+                let baseX = joystickBase.offsetLeft + joystickBase.offsetWidth / 2;
+                let baseY = joystickBase.offsetTop + joystickBase.offsetHeight / 2;
                 const maxDistance = 30; // Maximum distance the knob can move from center
 
                 // Touch start event
-                document.addEventListener('touchstart', (e) => {
+                joystickBase.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    const touch = e.touches[0];
-                    startX = touch.clientX;
-                    startY = touch.clientY;
-                    
-                    // Position the joystick base at touch point
-                    joystickBase.style.display = 'block';
-                    joystickBase.style.left = `${startX}px`;
-                    joystickBase.style.bottom = `${window.innerHeight - startY}px`;
-                    baseX = startX;
-                    baseY = startY;
-                    
                     isDragging = true;
+                    const touch = e.touches[0];
                     updateJoystick(touch.clientX, touch.clientY);
                 });
 
@@ -1366,7 +1354,6 @@
                 document.addEventListener('touchend', (e) => {
                     e.preventDefault();
                     isDragging = false;
-                    joystickBase.style.display = 'none';
                     joystickKnob.style.transform = 'translate(-50%, -50%)';
                     this.moveDirection = 0;
                 });
@@ -1375,7 +1362,6 @@
                 document.addEventListener('touchcancel', (e) => {
                     e.preventDefault();
                     isDragging = false;
-                    joystickBase.style.display = 'none';
                     joystickKnob.style.transform = 'translate(-50%, -50%)';
                     this.moveDirection = 0;
                 });
@@ -1400,6 +1386,12 @@
                     // Update movement direction (-1 to 1)
                     this.moveDirection = newX / maxDistance;
                 }
+
+                // Update base position on window resize
+                window.addEventListener('resize', () => {
+                    baseX = joystickBase.offsetLeft + joystickBase.offsetWidth / 2;
+                    baseY = joystickBase.offsetTop + joystickBase.offsetHeight / 2;
+                });
             }
 
             loadOtter() {
