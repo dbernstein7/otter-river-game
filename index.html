@@ -372,7 +372,7 @@
                 this.renderer.setPixelRatio(window.devicePixelRatio);
                 this.renderer.shadowMap.enabled = true;
                 this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                this.renderer.outputEncoding = THREE.sRGBEncoding;
+                this.renderer.outputColorSpace = THREE.SRGBColorSpace;
                 this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
                 this.renderer.toneMappingExposure = 1.0;
                 this.container.appendChild(this.renderer.domElement);
@@ -423,6 +423,88 @@
 
                 // Start initial render
                 this.renderer.render(this.scene, this.camera);
+            }
+
+            createEnvironment() {
+                // Create sky
+                const skyGeometry = new THREE.SphereGeometry(100, 32, 32);
+                const skyMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x87CEEB,
+                    side: THREE.BackSide
+                });
+                const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+                this.scene.add(sky);
+
+                // Create ground
+                const groundGeometry = new THREE.PlaneGeometry(100, 100);
+                const groundMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x228B22,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.position.y = -0.5;
+                ground.receiveShadow = true;
+                this.scene.add(ground);
+
+                // Create clouds
+                this.clouds = [];
+                for (let i = 0; i < 10; i++) {
+                    const cloudGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 8, 8);
+                    const cloudMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        roughness: 1,
+                        metalness: 0
+                    });
+                    const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+                    cloud.position.set(
+                        (Math.random() - 0.5) * 100,
+                        Math.random() * 20 + 10,
+                        (Math.random() - 0.5) * 100
+                    );
+                    cloud.userData.speed = Math.random() * 0.02 + 0.01;
+                    this.clouds.push(cloud);
+                    this.scene.add(cloud);
+                }
+            }
+
+            createRiver() {
+                // Create river bed
+                const riverGeometry = new THREE.PlaneGeometry(20, 1000);
+                const riverMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x1E90FF,
+                    roughness: 0.3,
+                    metalness: 0.2
+                });
+                this.water = new THREE.Mesh(riverGeometry, riverMaterial);
+                this.water.rotation.x = -Math.PI / 2;
+                this.water.position.y = 0;
+                this.water.receiveShadow = true;
+                this.scene.add(this.water);
+
+                // Create river banks
+                const bankGeometry = new THREE.BoxGeometry(20, 1, 1000);
+                const bankMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x8B4513,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                const leftBank = new THREE.Mesh(bankGeometry, bankMaterial);
+                leftBank.position.set(-10, -0.5, 0);
+                leftBank.receiveShadow = true;
+                this.scene.add(leftBank);
+
+                const rightBank = new THREE.Mesh(bankGeometry, bankMaterial);
+                rightBank.position.set(10, -0.5, 0);
+                rightBank.receiveShadow = true;
+                this.scene.add(rightBank);
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
             }
 
             updateTopScores() {
