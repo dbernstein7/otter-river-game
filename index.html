@@ -279,13 +279,17 @@
                 // Add start button listener
                 const startButton = document.getElementById('start-button');
                 if (startButton) {
-                    console.log('Start button found, adding click listener');
-                    startButton.addEventListener('click', () => {
-                        console.log('Start button clicked');
+                    console.log('Start button found, adding listeners');
+                    
+                    function handleStart() {
+                        console.log('Start button activated');
                         if (gameInstance) {
                             gameInstance.startGame();
                         }
-                    });
+                    }
+                    
+                    startButton.addEventListener('touchstart', handleStart);
+                    startButton.addEventListener('click', handleStart);
                 } else {
                     console.error('Start button not found');
                 }
@@ -293,11 +297,14 @@
                 // Add wear hat button listener
                 const hatButton = document.querySelector('.unlockable button');
                 if (hatButton) {
-                    hatButton.addEventListener('click', () => {
+                    function handleHat() {
                         if (gameInstance) {
                             gameInstance.wearHat();
                         }
-                    });
+                    }
+                    
+                    hatButton.addEventListener('touchstart', handleHat);
+                    hatButton.addEventListener('click', handleHat);
                 }
             } else {
                 console.error('Game container not found');
@@ -306,7 +313,9 @@
             // Add collapsible functionality
             const coll = document.getElementsByClassName("collapsible");
             for (let i = 0; i < coll.length; i++) {
-                coll[i].addEventListener("click", function() {
+                const element = coll[i];
+                
+                function handleCollapse() {
                     this.classList.toggle("active");
                     const content = this.nextElementSibling;
                     if (content.style.maxHeight) {
@@ -316,7 +325,10 @@
                         content.style.maxHeight = content.scrollHeight + "px";
                         content.classList.add("active");
                     }
-                });
+                }
+                
+                element.addEventListener("touchstart", handleCollapse);
+                element.addEventListener("click", handleCollapse);
             }
         });
 
