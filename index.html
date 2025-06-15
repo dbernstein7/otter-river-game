@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Otter River Adventure</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -14,7 +16,9 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            font-family: 'Orbitron', sans-serif;
         }
+        
         body {
             margin: 0;
             width: 100vw;
@@ -23,7 +27,6 @@
             background: #333;
             position: fixed;
             touch-action: none;
-            font-family: Arial, sans-serif;
             font-size: 14px;
         }
         #game-container {
@@ -32,14 +35,63 @@
             position: relative;
             overflow: hidden;
         }
-        #score {
+        #game-ui {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 18px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        }
+        #score {
+            color: white;
+            font-size: 24px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        #timer {
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        #lives {
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        .life {
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transition: all 0.3s ease;
+        }
+        .life.lost {
+            transform: scale(0.5);
+            opacity: 0.5;
+        }
+        #level {
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
         #home-screen {
             position: absolute;
@@ -196,7 +248,16 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="score">Score: 0</div>
+        <div id="game-ui">
+            <div id="score">Score: 0</div>
+            <div id="timer">Time: 30</div>
+            <div id="lives">
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+            </div>
+            <div id="level">Level: 1</div>
+        </div>
         <div id="home-screen">
             <h1>Otter River Adventure</h1>
             <p>A fun 3D game where you control an otter collecting fish and avoiding obstacles in a river!</p>
@@ -357,6 +418,9 @@
                 this.topScores = JSON.parse(localStorage.getItem('topScores')) || [];
                 this.unlockedItems = JSON.parse(localStorage.getItem('unlockedItems')) || ['topHat'];
                 this.gameLoopRunning = false;
+                this.lives = 3;
+                this.levelTimer = 30;
+                this.lastLevelTime = Date.now();
                 
                 console.log('Initializing game...');
                 this.init();
@@ -578,7 +642,20 @@
                 let geometry;
                 switch(selectedType.shape) {
                     case 'fish':
-                        geometry = new THREE.ConeGeometry(0.3, 0.8, 8);
+                        // Create a more realistic fish shape
+                        const fishShape = new THREE.Shape();
+                        fishShape.moveTo(0, 0);
+                        fishShape.bezierCurveTo(0.2, 0.1, 0.3, 0.2, 0.4, 0);
+                        fishShape.bezierCurveTo(0.3, -0.2, 0.2, -0.1, 0, 0);
+                        const fishExtrudeSettings = {
+                            steps: 1,
+                            depth: 0.1,
+                            bevelEnabled: true,
+                            bevelThickness: 0.1,
+                            bevelSize: 0.1,
+                            bevelSegments: 3
+                        };
+                        geometry = new THREE.ExtrudeGeometry(fishShape, fishExtrudeSettings);
                         break;
                     case 'clam':
                         geometry = new THREE.SphereGeometry(0.4, 16, 16);
@@ -587,7 +664,20 @@
                         geometry = new THREE.CylinderGeometry(0.1, 0.2, 0.8, 8);
                         break;
                     case 'jellyfish':
-                        geometry = new THREE.SphereGeometry(0.3, 16, 16);
+                        // Create a more realistic jellyfish shape
+                        const jellyShape = new THREE.Shape();
+                        jellyShape.moveTo(0, 0);
+                        jellyShape.bezierCurveTo(0.2, 0.3, 0.4, 0.3, 0.5, 0);
+                        jellyShape.bezierCurveTo(0.4, -0.3, 0.2, -0.3, 0, 0);
+                        const jellyExtrudeSettings = {
+                            steps: 1,
+                            depth: 0.1,
+                            bevelEnabled: true,
+                            bevelThickness: 0.1,
+                            bevelSize: 0.1,
+                            bevelSegments: 3
+                        };
+                        geometry = new THREE.ExtrudeGeometry(jellyShape, jellyExtrudeSettings);
                         break;
                     case 'starfish':
                         geometry = new THREE.StarGeometry(0.4, 5, 0.2);
@@ -658,50 +748,42 @@
                 this.gameOver = false;
                 this.score = 0;
                 this.level = 1;
+                this.lives = 3;
+                this.levelTimer = 30;
+                this.lastLevelTime = Date.now();
                 this.obstacleSpeed = 0.2;
                 this.spawnRate = 0.02;
                 this.collectibleSpawnRate = 0.01;
+                
+                // Update UI
+                this.updateScore();
+                this.updateLives();
+                this.updateLevel();
                 
                 // Hide home screen
                 const homeScreen = document.getElementById('home-screen');
                 if (homeScreen) {
                     console.log('Hiding home screen');
                     homeScreen.style.display = 'none';
-                } else {
-                    console.error('Home screen element not found');
                 }
                 
                 // Reset otter position
                 if (this.otter) {
                     console.log('Resetting otter position');
                     this.otter.position.set(0, 0, 0);
-                } else {
-                    console.error('Otter not found');
                 }
                 
                 // Clear existing obstacles and collectibles
-                console.log('Clearing obstacles and collectibles');
                 this.obstacles.forEach(obstacle => this.scene.remove(obstacle));
                 this.obstacles = [];
                 this.collectibles.forEach(collectible => this.scene.remove(collectible));
                 this.collectibles = [];
-                
-                // Update score display
-                const scoreElement = document.getElementById('score');
-                if (scoreElement) {
-                    console.log('Updating score display');
-                    scoreElement.textContent = 'Score: 0';
-                } else {
-                    console.error('Score element not found');
-                }
                 
                 // Start the game loop if it's not already running
                 if (!this.gameLoopRunning) {
                     console.log('Starting game loop');
                     this.gameLoopRunning = true;
                     this.animate();
-                } else {
-                    console.log('Game loop already running');
                 }
             }
 
@@ -741,6 +823,23 @@
                 requestAnimationFrame(this.animate.bind(this));
 
                 if (this.isPlaying && !this.gameOver) {
+                    // Update timer
+                    const currentTime = Date.now();
+                    const deltaTime = (currentTime - this.lastLevelTime) / 1000;
+                    this.levelTimer -= deltaTime;
+                    this.lastLevelTime = currentTime;
+                    this.updateTimer();
+
+                    // Level up every 30 seconds
+                    if (this.levelTimer <= 0) {
+                        this.level++;
+                        this.levelTimer = 30;
+                        this.obstacleSpeed += 0.05;
+                        this.spawnRate += 0.005;
+                        this.collectibleSpawnRate += 0.002;
+                        this.updateLevel();
+                    }
+
                     this.updateOtterPosition();
                 }
 
@@ -756,15 +855,6 @@
 
                 this.updateObstacles();
                 this.updateCollectibles();
-
-                // Level up every 100 points
-                const newLevel = Math.floor(this.score / 100) + 1;
-                if (newLevel > this.level) {
-                    this.level = newLevel;
-                    this.obstacleSpeed += 0.05;
-                    this.spawnRate += 0.005;
-                    this.collectibleSpawnRate += 0.002;
-                }
 
                 // Animate water with subtle wave effect
                 const time = Date.now() * 0.001;
@@ -836,7 +926,7 @@
                 this.scene.add(this.otter);
 
                 // Create body
-                const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.6, 4, 8);  // Smaller body
+                const bodyGeometry = new THREE.CapsuleGeometry(0.4, 0.8, 8, 16);  // Rounder body with more segments
                 const bodyMaterial = new THREE.MeshStandardMaterial({
                     color: 0xD2691E,  // Lighter brown (Chocolate)
                     roughness: 0.7,
@@ -845,7 +935,7 @@
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.position.y = 0.3;
                 body.rotation.y = Math.PI / 2;  // Rotate 90 degrees
-                body.scale.set(1, 0.4, 1);  // Flatten the body vertically
+                body.scale.set(1, 0.5, 1);  // Slightly rounder
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -924,7 +1014,7 @@
                 tail.position.set(0, 0.3, 0.7);  // Moved closer to body
                 tail.rotation.x = Math.PI / 2;  // Horizontal
                 tail.rotation.y = Math.PI / 2;  // Match body rotation
-                tail.rotation.z = Math.PI / 2;  // Rotate to connect with body
+                tail.rotation.z = 0;  // Remove z rotation to make tail visible from side
                 tail.scale.set(1, 0.2, 1);  // Make tail flatter
                 tail.castShadow = true;
                 this.otter.add(tail);
@@ -997,8 +1087,8 @@
                         metalness: 0.2
                     });
                 } else {
-                    // Create wooden pole
-                    geometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);
+                    // Create wooden pole with smaller collision box
+                    geometry = new THREE.CylinderGeometry(0.15, 0.15, 2, 8);  // Reduced radius
                     material = new THREE.MeshStandardMaterial({
                         color: 0x8B4513,
                         roughness: 0.9,
@@ -1019,7 +1109,17 @@
 
             checkCollision(otter, obstacle) {
                 const distance = otter.position.distanceTo(obstacle.position);
-                return distance < 1;
+                const collisionRadius = obstacle.geometry.type === 'CylinderGeometry' ? 0.3 : 0.5;
+                if (distance < collisionRadius) {
+                    this.lives--;
+                    this.updateLives();
+                    if (this.lives <= 0) {
+                        this.gameOver = true;
+                        this.showGameOver();
+                    }
+                    return true;
+                }
+                return false;
             }
 
             updateScore() {
@@ -1034,6 +1134,28 @@
                     this.otter.position.x += this.moveDirection * this.moveSpeed;
                     // Keep otter within bounds
                     this.otter.position.x = Math.max(-8, Math.min(8, this.otter.position.x));
+                }
+            }
+
+            updateLives() {
+                const livesContainer = document.getElementById('lives');
+                const lives = livesContainer.getElementsByClassName('life');
+                for (let i = 0; i < lives.length; i++) {
+                    lives[i].classList.toggle('lost', i >= this.lives);
+                }
+            }
+
+            updateLevel() {
+                const levelElement = document.getElementById('level');
+                if (levelElement) {
+                    levelElement.textContent = `Level: ${this.level}`;
+                }
+            }
+
+            updateTimer() {
+                const timerElement = document.getElementById('timer');
+                if (timerElement) {
+                    timerElement.textContent = `Time: ${Math.ceil(this.levelTimer)}`;
                 }
             }
         }
