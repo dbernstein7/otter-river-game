@@ -471,7 +471,7 @@
 
             createRiver() {
                 // Create river bed
-                const riverGeometry = new THREE.PlaneGeometry(40, 1000);  // Increased width to 40
+                const riverGeometry = new THREE.PlaneGeometry(40, 1000);
                 const riverMaterial = new THREE.MeshStandardMaterial({
                     color: 0x1E90FF,  // Dodger blue
                     roughness: 0.3,
@@ -481,7 +481,7 @@
                 });
                 this.water = new THREE.Mesh(riverGeometry, riverMaterial);
                 this.water.rotation.x = -Math.PI / 2;
-                this.water.position.y = 0;
+                this.water.position.y = -0.5;  // Lower water level
                 this.water.receiveShadow = true;
                 this.scene.add(this.water);
             }
@@ -581,7 +581,7 @@
                 const collectible = new THREE.Mesh(geometry, material);
                 collectible.position.x = (Math.random() - 0.5) * 12;
                 collectible.position.z = -30;
-                collectible.position.y = 0.2;  // Adjusted to be at water level
+                collectible.position.y = -0.3;  // Lower collectible position
                 collectible.userData = {
                     type: selectedType.type,
                     points: selectedType.points
@@ -804,7 +804,7 @@
             loadOtter() {
                 // Create a group to hold all parts of the otter
                 this.otter = new THREE.Group();
-                this.otter.position.y = 0.2;  // Slightly above water level
+                this.otter.position.y = -0.3;  // Lower otter position
                 this.scene.add(this.otter);
 
                 // Create body
@@ -815,7 +815,7 @@
                     metalness: 0.2
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.position.y = 0.3;  // Adjusted to be partially submerged
+                body.position.y = 0.3;
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -946,18 +946,18 @@
                     });
                 } else {
                     // Create wooden pole
-                    geometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);  // Taller, thinner cylinder
+                    geometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);
                     material = new THREE.MeshStandardMaterial({
-                        color: 0x8B4513,  // Saddle brown for wood
-                        roughness: 0.9,    // More rough for wood texture
-                        metalness: 0.1     // Less metallic
+                        color: 0x8B4513,
+                        roughness: 0.9,
+                        metalness: 0.1
                     });
                 }
 
                 const obstacle = new THREE.Mesh(geometry, material);
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
-                obstacle.position.y = 1;  // Raised to account for pole height
+                obstacle.position.y = isRock ? -0.3 : 0.5;  // Rocks lower, poles higher
                 obstacle.castShadow = true;
                 obstacle.receiveShadow = true;
 
