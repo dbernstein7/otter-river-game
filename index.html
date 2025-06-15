@@ -1092,6 +1092,13 @@
                     const obstacle = this.obstacles[i];
                     obstacle.position.z += this.obstacleSpeed;
 
+                    // Apply rotation animation for certain obstacles
+                    if (obstacle.userData.rotationSpeed) {
+                        obstacle.rotation.x += obstacle.userData.rotationSpeed.x;
+                        obstacle.rotation.y += obstacle.userData.rotationSpeed.y;
+                        obstacle.rotation.z += obstacle.userData.rotationSpeed.z;
+                    }
+
                     // Check collision
                     if (this.checkCollision(this.otter, obstacle)) {
                         // Remove the obstacle after collision
@@ -1147,33 +1154,78 @@
             }
 
             spawnObstacle() {
-                // 70% chance for rock, 30% chance for wooden pole
-                const isRock = Math.random() < 0.7;
-                let geometry, material;
+                // Define obstacle types with their properties
+                const obstacleTypes = [
+                    { type: 'rock', chance: 0.3, geometry: new THREE.DodecahedronGeometry(0.5, 0), 
+                      material: new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8, metalness: 0.2 }),
+                      yPos: -0.3, scale: 1.0 },
+                    { type: 'pole', chance: 0.2, geometry: new THREE.CylinderGeometry(0.15, 0.15, 2, 8),
+                      material: new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9, metalness: 0.1 }),
+                      yPos: 0.5, scale: 1.0 },
+                    { type: 'log', chance: 0.15, geometry: new THREE.CylinderGeometry(0.2, 0.2, 1.5, 8),
+                      material: new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9, metalness: 0.1 }),
+                      yPos: -0.2, scale: 1.0 },
+                    { type: 'iceberg', chance: 0.15, geometry: new THREE.ConeGeometry(0.4, 1.2, 4),
+                      material: new THREE.MeshStandardMaterial({ color: 0xADD8E6, roughness: 0.3, metalness: 0.1 }),
+                      yPos: -0.1, scale: 1.0 },
+                    { type: 'debris', chance: 0.1, geometry: new THREE.TetrahedronGeometry(0.4, 0),
+                      material: new THREE.MeshStandardMaterial({ color: 0x696969, roughness: 0.7, metalness: 0.3 }),
+                      yPos: -0.3, scale: 1.0 },
+                    { type: 'floatingMine', chance: 0.1, geometry: new THREE.SphereGeometry(0.3, 16, 16),
+                      material: new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.5, metalness: 0.5 }),
+                      yPos: -0.2, scale: 1.0 }
+                ];
 
-                if (isRock) {
-                    geometry = new THREE.DodecahedronGeometry(0.5, 0);
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0x808080,
-                        roughness: 0.8,
-                        metalness: 0.2
-                    });
-                } else {
-                    // Create wooden pole with smaller collision box
-                    geometry = new THREE.CylinderGeometry(0.15, 0.15, 2, 8);  // Reduced radius
-                    material = new THREE.MeshStandardMaterial({
-                        color: 0x8B4513,
-                        roughness: 0.9,
-                        metalness: 0.1
-                    });
+                // Select obstacle type based on chances
+                const totalChance = obstacleTypes.reduce((sum, type) => sum + type.chance, 0);
+                let random = Math.random() * totalChance;
+                let selectedType;
+                let currentSum = 0;
+
+                for (const type of obstacleTypes) {
+                    currentSum += type.chance;
+                    if (random <= currentSum) {
+                        selectedType = type;
+                        break;
+                    }
                 }
 
-                const obstacle = new THREE.Mesh(geometry, material);
+                // Create the obstacle
+                const obstacle = new THREE.Mesh(selectedType.geometry, selectedType.material);
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
-                obstacle.position.y = isRock ? -0.3 : 0.5;  // Rocks lower, poles higher
+                obstacle.position.y = selectedType.yPos;
+                obstacle.scale.set(selectedType.scale, selectedType.scale, selectedType.scale);
                 obstacle.castShadow = true;
                 obstacle.receiveShadow = true;
+
+                // Add special behaviors for certain obstacles
+                if (selectedType.type === 'floatingMine') {
+                    // Add spikes to the mine
+                    const spikeGeometry = new THREE.ConeGeometry(0.1, 0.2, 8);
+                    const spikeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.5, metalness: 0.5 });
+                    for (let i = 0; i < 8; i++) {
+                        const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                        const angle = (i / 8) * Math.PI * 2;
+                        spike.position.set(
+                            Math.cos(angle) * 0.3,
+                            Math.sin(angle) * 0.3,
+                            0
+                        );
+                        spike.rotation.x = Math.PI / 2;
+                        spike.rotation.z = angle;
+                        obstacle.add(spike);
+                    }
+                }
+
+                // Add rotation animation for certain obstacles
+                if (selectedType.type === 'debris' || selectedType.type === 'floatingMine') {
+                    obstacle.userData.rotationSpeed = {
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.02
+                    };
+                }
 
                 this.scene.add(obstacle);
                 this.obstacles.push(obstacle);
