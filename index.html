@@ -123,10 +123,6 @@
                 this.isPlaying = false;
                 this.moveDirection = 0;
                 this.moveSpeed = 0.2;
-                this.obstacleSpeed = 0.2;
-                this.spawnRate = 0.02;
-                this.minObstacleDistance = 5;
-                this.lastObstacleZ = -30;
                 
                 this.init();
             }
@@ -490,11 +486,6 @@
             }
 
             spawnObstacle() {
-                // Check if enough distance has passed since last obstacle
-                if (this.lastObstacleZ - this.obstacles[this.obstacles.length - 1]?.position.z < this.minObstacleDistance) {
-                    return;
-                }
-
                 // Randomly choose between rock and red box
                 const isRock = Math.random() < 0.7; // 70% chance of rock
                 
@@ -525,13 +516,12 @@
                 
                 this.scene.add(obstacle);
                 this.obstacles.push(obstacle);
-                this.lastObstacleZ = obstacle.position.z;
             }
 
             updateObstacles() {
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
                     const obstacle = this.obstacles[i];
-                    obstacle.position.z += this.obstacleSpeed;
+                    obstacle.position.z += 0.2;
 
                     // Check collision
                     if (this.checkCollision(this.otter, obstacle)) {
@@ -592,7 +582,7 @@
                 }
 
                 // Spawn obstacles randomly
-                if (Math.random() < this.spawnRate) {
+                if (Math.random() < 0.02) {
                     this.spawnObstacle();
                 }
 
