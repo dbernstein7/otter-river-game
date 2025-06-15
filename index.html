@@ -343,9 +343,15 @@
 
             loadOtter() {
                 const geometry = new THREE.BoxGeometry(1, 1, 2);
-                const material = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0x8B4513,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
                 this.otter = new THREE.Mesh(geometry, material);
                 this.otter.position.y = 0.5;
+                this.otter.castShadow = true;
+                this.otter.receiveShadow = true;
                 this.scene.add(this.otter);
             }
 
@@ -433,6 +439,10 @@
                 if (this.gameOver) return;
 
                 requestAnimationFrame(this.animate.bind(this));
+
+                if (this.isPlaying && !this.gameOver) {
+                    this.updateOtterPosition();
+                }
 
                 // Spawn obstacles randomly
                 if (Math.random() < 0.02) {
