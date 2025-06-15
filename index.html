@@ -1157,22 +1157,58 @@
                 // Define obstacle types with their properties
                 const obstacleTypes = [
                     { type: 'rock', chance: 0.3, geometry: new THREE.DodecahedronGeometry(0.5, 0), 
-                      material: new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8, metalness: 0.2 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0x808080, 
+                          roughness: 0.8, 
+                          metalness: 0.2,
+                          emissive: 0x404040,
+                          emissiveIntensity: 0.2
+                      }),
                       yPos: -0.3, scale: 1.0 },
                     { type: 'pole', chance: 0.2, geometry: new THREE.CylinderGeometry(0.15, 0.15, 2, 8),
-                      material: new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9, metalness: 0.1 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0x8B4513, 
+                          roughness: 0.9, 
+                          metalness: 0.1,
+                          emissive: 0x4B2A0A,
+                          emissiveIntensity: 0.2
+                      }),
                       yPos: 0.5, scale: 1.0 },
                     { type: 'log', chance: 0.15, geometry: new THREE.CylinderGeometry(0.2, 0.2, 1.5, 8),
-                      material: new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9, metalness: 0.1 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0x8B4513, 
+                          roughness: 0.9, 
+                          metalness: 0.1,
+                          emissive: 0x4B2A0A,
+                          emissiveIntensity: 0.2
+                      }),
                       yPos: -0.2, scale: 1.0 },
                     { type: 'iceberg', chance: 0.15, geometry: new THREE.ConeGeometry(0.4, 1.2, 4),
-                      material: new THREE.MeshStandardMaterial({ color: 0xADD8E6, roughness: 0.3, metalness: 0.1 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0xADD8E6, 
+                          roughness: 0.3, 
+                          metalness: 0.1,
+                          emissive: 0x87CEEB,
+                          emissiveIntensity: 0.3
+                      }),
                       yPos: -0.1, scale: 1.0 },
                     { type: 'debris', chance: 0.1, geometry: new THREE.TetrahedronGeometry(0.4, 0),
-                      material: new THREE.MeshStandardMaterial({ color: 0x696969, roughness: 0.7, metalness: 0.3 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0x696969, 
+                          roughness: 0.7, 
+                          metalness: 0.3,
+                          emissive: 0x404040,
+                          emissiveIntensity: 0.2
+                      }),
                       yPos: -0.3, scale: 1.0 },
                     { type: 'floatingMine', chance: 0.1, geometry: new THREE.SphereGeometry(0.3, 16, 16),
-                      material: new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.5, metalness: 0.5 }),
+                      material: new THREE.MeshStandardMaterial({ 
+                          color: 0x000000, 
+                          roughness: 0.5, 
+                          metalness: 0.5,
+                          emissive: 0xFF0000,
+                          emissiveIntensity: 0.3
+                      }),
                       yPos: -0.2, scale: 1.0 }
                 ];
 
@@ -1201,9 +1237,15 @@
 
                 // Add special behaviors for certain obstacles
                 if (selectedType.type === 'floatingMine') {
-                    // Add spikes to the mine
+                    // Add spikes to the mine with glowing effect
                     const spikeGeometry = new THREE.ConeGeometry(0.1, 0.2, 8);
-                    const spikeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.5, metalness: 0.5 });
+                    const spikeMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x000000, 
+                        roughness: 0.5, 
+                        metalness: 0.5,
+                        emissive: 0xFF0000,
+                        emissiveIntensity: 0.5
+                    });
                     for (let i = 0; i < 8; i++) {
                         const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
                         const angle = (i / 8) * Math.PI * 2;
@@ -1225,6 +1267,18 @@
                         y: (Math.random() - 0.5) * 0.02,
                         z: (Math.random() - 0.5) * 0.02
                     };
+                }
+
+                // Add warning glow for dangerous obstacles
+                if (selectedType.type === 'floatingMine' || selectedType.type === 'iceberg') {
+                    const glowGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: selectedType.type === 'floatingMine' ? 0xFF0000 : 0x87CEEB,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    obstacle.add(glow);
                 }
 
                 this.scene.add(obstacle);
