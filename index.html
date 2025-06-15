@@ -939,6 +939,51 @@
                 body.castShadow = true;
                 this.otter.add(body);
 
+                // Create head
+                const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+                const headMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xD2691E,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.set(0, 0.4, -0.7);
+                head.rotation.y = Math.PI / 2;
+                head.scale.set(1, 0.6, 0.8);
+                head.castShadow = true;
+                this.otter.add(head);
+
+                // Create snout
+                const snoutGeometry = new THREE.ConeGeometry(0.12, 0.25, 8);
+                const snoutMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xD2691E,
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
+                snout.position.set(0, 0.4, -0.9);
+                snout.rotation.x = Math.PI / 2;
+                snout.rotation.y = Math.PI / 2;
+                snout.scale.set(1, 0.6, 0.8);
+                snout.castShadow = true;
+                this.otter.add(snout);
+
+                // Create eyes
+                const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);
+                const eyeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x000000,
+                    roughness: 0.3,
+                    metalness: 0.8
+                });
+                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                leftEye.position.set(0.12, 0.5, -0.8);
+                leftEye.rotation.y = Math.PI / 2;
+                this.otter.add(leftEye);
+                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                rightEye.position.set(-0.12, 0.5, -0.8);
+                rightEye.rotation.y = Math.PI / 2;
+                this.otter.add(rightEye);
+
                 // Create ears (smaller and rounder)
                 const earGeometry = new THREE.SphereGeometry(0.08, 16, 16);  // Smaller, rounder ears
                 const earMaterial = new THREE.MeshStandardMaterial({
