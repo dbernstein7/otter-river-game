@@ -581,7 +581,7 @@
                 const collectible = new THREE.Mesh(geometry, material);
                 collectible.position.x = (Math.random() - 0.5) * 12;
                 collectible.position.z = -30;
-                collectible.position.y = 0.5;
+                collectible.position.y = 0.2;  // Adjusted to be at water level
                 collectible.userData = {
                     type: selectedType.type,
                     points: selectedType.points
@@ -804,6 +804,7 @@
             loadOtter() {
                 // Create a group to hold all parts of the otter
                 this.otter = new THREE.Group();
+                this.otter.position.y = 0.2;  // Slightly above water level
                 this.scene.add(this.otter);
 
                 // Create body
@@ -814,7 +815,7 @@
                     metalness: 0.2
                 });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.position.y = 0.5;
+                body.position.y = 0.3;  // Adjusted to be partially submerged
                 body.castShadow = true;
                 this.otter.add(body);
 
@@ -955,7 +956,7 @@
                 const obstacle = new THREE.Mesh(geometry, material);
                 obstacle.position.x = (Math.random() - 0.5) * 12;
                 obstacle.position.z = -30;
-                obstacle.position.y = 0.5;
+                obstacle.position.y = 0.2;  // Adjusted to be at water level
                 obstacle.castShadow = true;
                 obstacle.receiveShadow = true;
 
