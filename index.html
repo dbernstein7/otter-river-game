@@ -648,15 +648,15 @@
 
             spawnCollectible() {
                 const types = [
-                    { type: 'normalFish', points: 1, color: 0x00FF00, chance: 0.4, shape: 'fish', emoji: '🐟' },
-                    { type: 'rainbowFish', points: 3, color: 0x32CD32, chance: 0.2, shape: 'fish', emoji: '🌈' },
-                    { type: 'goldenFish', points: 5, color: 0x228B22, chance: 0.15, shape: 'fish', emoji: '🌟' },
-                    { type: 'emeraldFish', points: 7, color: 0x006400, chance: 0.1, shape: 'fish', emoji: '💎' },
-                    { type: 'diamondFish', points: 10, color: 0x90EE90, chance: 0.05, shape: 'fish', emoji: '💠' },
-                    { type: 'clam', points: 15, color: 0x98FB98, chance: 0.05, shape: 'clam', emoji: '🦪' },
-                    { type: 'seahorse', points: 8, color: 0x3CB371, chance: 0.02, shape: 'seahorse', emoji: '🐠' },
-                    { type: 'jellyfish', points: 12, color: 0x2E8B57, chance: 0.02, shape: 'jellyfish', emoji: '🐙' },
-                    { type: 'starfish', points: 6, color: 0x66CDAA, chance: 0.01, shape: 'starfish', emoji: '⭐' }
+                    { type: 'normalFish', points: 1, color: 0x808080, chance: 0.4, shape: 'fish', emoji: '🐟' },
+                    { type: 'rainbowFish', points: 3, color: 0xFF69B4, chance: 0.2, shape: 'fish', emoji: '🌈' },
+                    { type: 'goldenFish', points: 5, color: 0xFFD700, chance: 0.15, shape: 'fish', emoji: '🌟' },
+                    { type: 'emeraldFish', points: 7, color: 0x00FF00, chance: 0.1, shape: 'fish', emoji: '💎' },
+                    { type: 'diamondFish', points: 10, color: 0x00FFFF, chance: 0.05, shape: 'fish', emoji: '💠' },
+                    { type: 'clam', points: 15, color: 0xFFFFFF, chance: 0.05, shape: 'clam', emoji: '🦪' },
+                    { type: 'seahorse', points: 8, color: 0xFFA500, chance: 0.02, shape: 'seahorse', emoji: '🐠' },
+                    { type: 'jellyfish', points: 12, color: 0xFF00FF, chance: 0.02, shape: 'jellyfish', emoji: '🐙' },
+                    { type: 'starfish', points: 6, color: 0xFFFF00, chance: 0.01, shape: 'starfish', emoji: '⭐' }
                 ];
 
                 // Adjust chances based on level
@@ -739,6 +739,19 @@
                     emoji: selectedType.emoji
                 };
                 collectible.castShadow = true;
+
+                // Add green glow plane under the collectible
+                const glowGeometry = new THREE.CircleGeometry(0.8, 32);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x00FF00,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.rotation.x = -Math.PI / 2;
+                glow.position.y = -0.1;
+                collectible.add(glow);
 
                 this.scene.add(collectible);
                 this.collectibles.push(collectible);
@@ -1158,56 +1171,44 @@
                 const obstacleTypes = [
                     { type: 'rock', chance: 0.3, geometry: new THREE.DodecahedronGeometry(0.5, 1), 
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0x8B0000, // Dark red
+                          color: 0x808080, // Back to original color
                           roughness: 0.8, 
-                          metalness: 0.2,
-                          emissive: 0x4B0000, // Darker red glow
-                          emissiveIntensity: 0.2
+                          metalness: 0.2
                       }),
                       yPos: -0.3, scale: 1.0 },
                     { type: 'pole', chance: 0.2, geometry: new THREE.CylinderGeometry(0.15, 0.15, 2, 8),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0x8B0000, // Dark red
+                          color: 0x8B4513, // Back to original color
                           roughness: 0.9, 
-                          metalness: 0.1,
-                          emissive: 0x4B0000, // Darker red glow
-                          emissiveIntensity: 0.2
+                          metalness: 0.1
                       }),
                       yPos: 0.5, scale: 1.0 },
                     { type: 'log', chance: 0.15, geometry: new THREE.CylinderGeometry(0.2, 0.2, 1.5, 8),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0x8B0000, // Dark red
+                          color: 0x8B4513, // Back to original color
                           roughness: 0.9, 
-                          metalness: 0.1,
-                          emissive: 0x4B0000, // Darker red glow
-                          emissiveIntensity: 0.2
+                          metalness: 0.1
                       }),
                       yPos: -0.2, scale: 1.0 },
                     { type: 'iceberg', chance: 0.15, geometry: new THREE.ConeGeometry(0.4, 1.2, 4),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0xFF0000, // Bright red
+                          color: 0xADD8E6, // Back to original color
                           roughness: 0.3, 
-                          metalness: 0.1,
-                          emissive: 0x8B0000, // Dark red glow
-                          emissiveIntensity: 0.3
+                          metalness: 0.1
                       }),
                       yPos: -0.1, scale: 1.0 },
                     { type: 'debris', chance: 0.1, geometry: new THREE.TetrahedronGeometry(0.4, 0),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0x8B0000, // Dark red
+                          color: 0x696969, // Back to original color
                           roughness: 0.7, 
-                          metalness: 0.3,
-                          emissive: 0x4B0000, // Darker red glow
-                          emissiveIntensity: 0.2
+                          metalness: 0.3
                       }),
                       yPos: -0.3, scale: 1.0 },
                     { type: 'floatingMine', chance: 0.1, geometry: new THREE.SphereGeometry(0.3, 16, 16),
                       material: new THREE.MeshStandardMaterial({ 
-                          color: 0xFF0000, // Bright red
+                          color: 0x000000, // Back to original color
                           roughness: 0.5, 
-                          metalness: 0.5,
-                          emissive: 0xFF0000, // Bright red glow
-                          emissiveIntensity: 0.3
+                          metalness: 0.5
                       }),
                       yPos: -0.2, scale: 1.0 }
                 ];
@@ -1234,6 +1235,19 @@
                 obstacle.scale.set(selectedType.scale, selectedType.scale, selectedType.scale);
                 obstacle.castShadow = true;
                 obstacle.receiveShadow = true;
+
+                // Add red glow plane under the obstacle
+                const glowGeometry = new THREE.CircleGeometry(0.8, 32);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xFF0000,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.rotation.x = -Math.PI / 2;
+                glow.position.y = -0.1;
+                obstacle.add(glow);
 
                 // Add special behaviors and features for each obstacle type
                 switch(selectedType.type) {
@@ -1439,6 +1453,8 @@
                 const scoreElement = document.getElementById('score');
                 if (scoreElement) {
                     scoreElement.textContent = `Score: ${this.score}`;
+                    // Ensure minimum width to prevent layout shifts
+                    scoreElement.style.minWidth = '120px';
                 }
             }
 
@@ -1462,6 +1478,8 @@
                 const levelElement = document.getElementById('level');
                 if (levelElement) {
                     levelElement.textContent = `Level: ${this.level}`;
+                    // Ensure minimum width to prevent layout shifts
+                    levelElement.style.minWidth = '100px';
                 }
             }
 
@@ -1469,6 +1487,8 @@
                 const timerElement = document.getElementById('timer');
                 if (timerElement) {
                     timerElement.textContent = `Time: ${Math.ceil(this.levelTimer)}`;
+                    // Ensure minimum width to prevent layout shifts
+                    timerElement.style.minWidth = '100px';
                 }
             }
         }
